@@ -1,0 +1,172 @@
+.message-container {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	background: #12171f;
+}
+
+.chat-header {
+	height: 74px;
+
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	padding: 0 24px;
+
+	background: rgba(23, 30, 40, 0.88);
+
+	backdrop-filter: blur(12px);
+
+	border-bottom: 1px solid #2c3643;
+}
+
+.chat-user {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.chat-avatar {
+	position: relative;
+	width: 48px;
+	height: 48px;
+}
+
+.chat-avatar img {
+	width: 100%;
+	height: 100%;
+
+	object-fit: cover;
+
+	border-radius: 50%;
+
+	border: 1px solid #394455;
+}
+
+.online-dot {
+	position: absolute;
+	right: 2px;
+	bottom: 2px;
+
+	width: 12px;
+	height: 12px;
+
+	border-radius: 50%;
+
+	background: #34d399;
+
+	border: 2px solid #12171f;
+}
+
+.chat-user-info h3 {
+	font-size: 17px;
+	font-weight: 600;
+
+	color: #f3f4f6;
+
+	margin-bottom: 2px;
+}
+
+.chat-user-info p {
+	font-size: 13px;
+	color: #67e8a5;
+}
+
+.chat-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.chat-actions button {
+	width: 40px;
+	height: 40px;
+
+	border: none;
+	border-radius: 10px;
+
+	background: transparent;
+
+	color: #9ca3af;
+
+	cursor: pointer;
+
+	font-size: 16px;
+
+	transition: .25s;
+}
+
+.chat-actions button:hover {
+	background: #232d3b;
+	color: white;
+}
+
+.action-divider {
+	width: 1px;
+	height: 24px;
+
+	background: #2f3946;
+
+	margin: 0 6px;
+}
+
+.empty-chat {
+	flex: 1;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	padding: 30px;
+}
+
+.empty-card {
+	width: 420px;
+
+	text-align: center;
+
+	padding: 40px;
+
+	border-radius: 18px;
+
+	background: #1a212d;
+
+	border: 1px solid #2e3745;
+}
+
+.empty-icon {
+	width: 90px;
+	height: 90px;
+
+	margin: 0 auto 25px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 50%;
+
+	background: #232d3b;
+
+	color: #4f8cff;
+
+	font-size: 42px;
+}
+
+.empty-card h2 {
+	color: white;
+
+	font-size: 26px;
+	font-weight: 700;
+
+	margin-bottom: 12px;
+}
+
+.empty-card p {
+	color: #97a3b4;
+
+	line-height: 1.7;
+
+	font-size: 15px;
+}

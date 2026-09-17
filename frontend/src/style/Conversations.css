@@ -1,0 +1,124 @@
+.conversation-card {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+
+	padding: 14px 16px;
+
+	border-radius: 16px;
+
+	cursor: pointer;
+
+	transition: all .25s ease;
+}
+
+.conversation-card:hover {
+	background: #1f2733;
+}
+
+.conversation-card.active {
+	background: linear-gradient(
+		90deg,
+		rgba(79,140,255,.16),
+		rgba(79,140,255,.05)
+	);
+
+	box-shadow: inset 3px 0 0 #4f8cff;
+}
+
+.conversation-avatar {
+	position: relative;
+
+	width: 52px;
+	height: 52px;
+
+	flex-shrink: 0;
+}
+
+.conversation-avatar img {
+	width: 100%;
+	height: 100%;
+
+	object-fit: cover;
+
+	border-radius: 50%;
+
+	border: 2px solid #313b48;
+}
+
+.status-indicator {
+	position: absolute;
+
+	right: 2px;
+	bottom: 2px;
+
+	width: 12px;
+	height: 12px;
+
+	border-radius: 50%;
+
+	background: #3ddc97;
+
+	border: 2px solid #161b22;
+}
+
+.conversation-content {
+	flex: 1;
+
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+
+	min-width: 0;
+}
+
+.conversation-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.conversation-header h4 {
+	margin: 0;
+
+	font-size: 15px;
+	font-weight: 600;
+
+	color: #f5f7fa;
+
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.conversation-emoji {
+	font-size: 18px;
+	flex-shrink: 0;
+}
+
+.conversation-status {
+	display: flex;
+	align-items: center;
+}
+
+.status-text {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.status-text.online {
+	color: #3ddc97;
+}
+
+.status-text.offline {
+	color: #7b8794;
+}
+
+.conversation-divider {
+	height: 1px;
+
+	margin: 8px 0;
+
+	background: #252d38;
+}

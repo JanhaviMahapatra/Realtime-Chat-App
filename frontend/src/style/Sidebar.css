@@ -1,0 +1,106 @@
+.sidebar {
+	width: 340px;
+	height: 100%;
+
+	display: flex;
+	flex-direction: column;
+
+	background: #141a22;
+
+	border-right: 1px solid #2c3542;
+}
+
+.sidebar-top {
+	padding: 24px;
+}
+
+.sidebar-brand {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+
+	margin-bottom: 24px;
+}
+
+.brand-logo {
+	width: 48px;
+	height: 48px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 14px;
+
+	background: linear-gradient(
+		135deg,
+		#4f8cff,
+		#2f6fff
+	);
+
+	color: white;
+
+	font-size: 22px;
+	font-weight: 700;
+
+	box-shadow: 0 10px 24px rgba(79, 140, 255, .28);
+}
+
+.brand-info {
+	display: flex;
+	flex-direction: column;
+}
+
+.brand-info h2 {
+	margin: 0;
+
+	font-size: 20px;
+	font-weight: 700;
+
+	color: #f5f7fa;
+}
+
+.brand-info p {
+	margin-top: 4px;
+
+	font-size: 13px;
+
+	color: #8693a5;
+}
+
+.sidebar-divider {
+	height: 1px;
+
+	background: #2b3441;
+
+	margin: 0 24px;
+}
+
+.sidebar-conversations {
+	flex: 1;
+
+	padding: 18px 16px;
+
+	overflow-y: auto;
+}
+
+.sidebar-conversations::-webkit-scrollbar {
+	width: 6px;
+}
+
+.sidebar-conversations::-webkit-scrollbar-thumb {
+	background: #36404f;
+	border-radius: 10px;
+}
+
+.sidebar-conversations::-webkit-scrollbar-thumb:hover {
+	background: #475365;
+}
+
+@media (max-width: 900px) {
+	.sidebar {
+		width: 100%;
+		border-right: none;
+		border-bottom: 1px solid #2c3542;
+	}
+}

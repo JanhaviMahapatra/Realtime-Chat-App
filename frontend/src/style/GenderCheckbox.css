@@ -1,0 +1,101 @@
+.gender-selector {
+	display: flex;
+	gap: 16px;
+
+	margin-top: 8px;
+}
+
+.gender-card {
+	flex: 1;
+
+	display: flex;
+	align-items: center;
+	gap: 14px;
+
+	padding: 16px;
+
+	background: #1d2530;
+
+	border: 1px solid #2f3948;
+	border-radius: 16px;
+
+	cursor: pointer;
+
+	transition: all .25s ease;
+
+	position: relative;
+}
+
+.gender-card input {
+	display: none;
+}
+
+.gender-card:hover {
+	background: #232d3a;
+	border-color: #4f8cff;
+}
+
+.gender-card.active {
+	background: rgba(79, 140, 255, .12);
+
+	border-color: #4f8cff;
+
+	box-shadow:
+		0 0 0 3px rgba(79, 140, 255, .12);
+}
+
+.gender-icon {
+	width: 46px;
+	height: 46px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 12px;
+
+	background: #293342;
+
+	font-size: 24px;
+
+	color: #4f8cff;
+
+	transition: .25s;
+}
+
+.gender-card.active .gender-icon {
+	background: #4f8cff;
+	color: white;
+}
+
+.gender-info {
+	display: flex;
+	flex-direction: column;
+}
+
+.gender-info h4 {
+	margin: 0;
+
+	font-size: 15px;
+	font-weight: 600;
+
+	color: #f5f7fa;
+}
+
+.gender-info p {
+	margin-top: 4px;
+
+	font-size: 13px;
+
+	color: #8b96a7;
+}
+
+.gender-card.active .gender-info p {
+	color: #b8d3ff;
+}
+
+@media (max-width: 600px) {
+	.gender-selector {
+		flex-direction: column;
+	}
+}
