@@ -9,11 +9,16 @@ const useGetConversations = () => {
 		const getConversations = async () => {
 			setLoading(true);
 			try {
-				const res = await fetch("/api/users");
+				const res = await fetch(
+					`${import.meta.env.VITE_API_URL}/api/users`
+				);
+
 				const data = await res.json();
+
 				if (data.error) {
 					throw new Error(data.error);
 				}
+
 				setConversations(data);
 			} catch (error) {
 				toast.error(error.message);
@@ -27,4 +32,5 @@ const useGetConversations = () => {
 
 	return { loading, conversations };
 };
+
 export default useGetConversations;

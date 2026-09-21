@@ -1,5 +1,4 @@
 import "../../style/GenderCheckbox.css";
-import { FiUser } from "react-icons/fi";
 import { IoFemaleOutline, IoMaleOutline } from "react-icons/io5";
 
 const GenderCheckbox = ({ onCheckboxChange, selectedGender }) => {

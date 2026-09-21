@@ -4,37 +4,37 @@ import toast from "react-hot-toast";
 const useMarkMessagesAsRead = () => {
 	const [loading, setLoading] = useState(false);
 
-	const markMessagesAsRead = useCallback(async (senderId) => {
-		if (!senderId) return;
+const markMessagesAsRead = useCallback(async (senderId) => {
+if (!senderId) return;
 
-		setLoading(true);
+setLoading(true);
 
-		try {
-			const res = await fetch(
-				`/api/messages/read/${senderId}`,
-				{
-					method: "POST",
-				}
-			);
+try {
+const res = await fetch(
+	`${import.meta.env.VITE_API_URL}/api/messages/read/${senderId}`,
+	{
+		method: "POST",
+	}
+);
 
-			const data = await res.json();
+	const data = await res.json();
 
-			if (data.error) {
-				throw new Error(data.error);
-			}
+	if (data.error) {
+		throw new Error(data.error);
+	}
 
-			return data;
-		} catch (error) {
-			toast.error(error.message);
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+	return data;
+} catch (error) {
+	toast.error(error.message);
+} finally {
+	setLoading(false);
+}
+}, []);
 
-	return {
-		markMessagesAsRead,
-		loading,
-	};
+return {
+markMessagesAsRead,
+loading,
+};
 };
 
 export default useMarkMessagesAsRead;

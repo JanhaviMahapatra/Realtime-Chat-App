@@ -2,45 +2,47 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 const useSearchUsers = () => {
-	const [loading, setLoading] = useState(false);
-	const [users, setUsers] = useState([]);
+const [loading, setLoading] = useState(false);
+const [users, setUsers] = useState([]);
 
 const searchUsers = async (query) => {
 if (!query.trim()) {
-setUsers([]);
-return;
+  setUsers([]);
+  return;
 }
 
 setLoading(true);
 
 try {
-//can also use axios instead of fetch
-const res = await fetch(`/api/users/search?query=${encodeURIComponent(query.trim())}`);
+  // Can also use axios instead of fetch
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/api/users/search?query=${encodeURIComponent(query.trim())}`
+  );
 
-const data = await res.json();
+  const data = await res.json();
 
-if (data.error) {
-  throw new Error(data.error);
-}
+  if (data.error) {
+    throw new Error(data.error);
+  }
 
-setUsers(data);
+  setUsers(data);
 } catch (error) {
-toast.error(error.message);
-setUsers([]);
+  toast.error(error.message);
+  setUsers([]);
 } finally {
-setLoading(false);
+  setLoading(false);
 }
 };
 
 const clearResults = () => {
-  setUsers([]);
+setUsers([]);
 };
 
 return {
-  loading,
-  users,
-  searchUsers,
-  clearResults,
+loading,
+users,
+searchUsers,
+clearResults,
 };
 };
 
