@@ -2,10 +2,9 @@ import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
 
 import {
-getReceiverSocketId,
-io,
+	getReceiverSocketId,
+	io,
 } from "../socket/socket.js";
-
 
 export const sendMessage = async (req, res) => {
 try {
@@ -18,12 +17,10 @@ let fileUrl = null;
 let fileName = null;
 let fileType = null;
 
-
 if (req.file) {
-	fileUrl = `/uploads/${req.file.filename}`;
+	fileUrl = `${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
 	fileName = req.file.originalname;
 	fileType = req.file.mimetype;
-
 
 	if (req.file.mimetype.startsWith("image/")) {
 		if (req.file.mimetype === "image/gif") {
@@ -35,7 +32,6 @@ if (req.file) {
 		messageType = "file";
 	}
 }
-
 
 if (
 	messageType === "text" &&
@@ -55,7 +51,6 @@ if (
 	});
 }
 
-
 let conversation = await Conversation.findOne({
 	participants: {
 		$all: [senderId, receiverId],
@@ -71,25 +66,19 @@ if (!conversation) {
 	});
 }
 
+const newMessage = new Message({senderId,receiverId,
+message:
+messageType === "text" ? message.trim(): "",
 
-const newMessage = new Message({
-	senderId,
-	receiverId,
+messageType,
 
-	message:
-		messageType === "text"
-			? message.trim()
-			: "",
+fileUrl,
+fileName,
+fileType,
 
-	messageType,
+replyTo: replyTo || null,
 
-	fileUrl,
-	fileName,
-	fileType,
-
-	replyTo: replyTo || null,
-
-	status: "sent",
+status: "sent",
 });
 
 conversation.messages.push(
@@ -101,7 +90,6 @@ await Promise.all([
 	newMessage.save(),
 ]);
 
-
 const receiverSocketId =
 	getReceiverSocketId(receiverId);
 
@@ -110,7 +98,6 @@ if (receiverSocketId) {
 
 	await newMessage.save();
 }
-
 
 if (newMessage.replyTo) {
 	await newMessage.populate({
@@ -146,11 +133,7 @@ res.status(500).json({
 }
 };
 
-
-export const getMessages = async (
-req,
-res
-) => {
+export const getMessages = async (req, res) => {
 try {
 const {
 	id: userToChatId,
@@ -196,10 +179,7 @@ res.status(500).json({
 }
 };
 
-export const markMessagesAsRead = async (
-req,
-res
-) => {
+export const markMessagesAsRead = async (req, res) => {
 try {
 const {
 	id: senderId,
@@ -276,10 +256,7 @@ res.status(500).json({
 }
 };
 
-export const editMessage = async (
-req,
-res
-) => {
+export const editMessage = async (req, res) => {
 try {
 const {
 	id: messageId,
@@ -380,10 +357,7 @@ res.status(500).json({
 }
 };
 
-export const deleteMessage = async (
-req,
-res
-) => {
+export const deleteMessage = async (req, res) => {
 try {
 const {
 	id: messageId,
@@ -459,3 +433,4 @@ res.status(500).json({
 });
 }
 };
+

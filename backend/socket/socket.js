@@ -1,9 +1,12 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
+import dotenv from "dotenv";
 
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
+
+dotenv.config();
 
 const app = express();
 
@@ -14,11 +17,11 @@ const allowedOrigins = [
 	process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-
 const io = new Server(server, {
 	cors: {
-		origin:allowedOrigins,
+		origin: allowedOrigins,
 		methods: ["GET", "POST"],
+		credentials: true,
 	},
 });
 
@@ -120,6 +123,7 @@ if (sockets) {
 		userSocketMap.delete(userId);
 
 		const lastSeen = new Date();
+
    try {
 		await User.findByIdAndUpdate(userId, {
 			lastSeen,
@@ -145,3 +149,4 @@ if (sockets) {
 });
 
 export { app, io, server };
+
