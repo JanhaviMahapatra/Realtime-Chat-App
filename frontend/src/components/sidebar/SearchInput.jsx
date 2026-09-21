@@ -1,63 +1,89 @@
 import "../../style/SearchInput.css";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoSearchSharp } from "react-icons/io5";
-import toast from "react-hot-toast";
 
 import useConversation from "../../zustand/useConversation";
-import useGetConversations from "../../hooks/useGetConversations";
+import useSearchUsers from "../../hooks/useSearchUsers";
 
 const SearchInput = () => {
 	const [search, setSearch] = useState("");
 
 	const { setSelectedConversation } = useConversation();
-	const { conversations } = useGetConversations();
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
+	const {
+		loading,
+		users,
+		searchUsers,
+		clearResults,
+	} = useSearchUsers();
 
-		if (!search.trim()) return;
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			if (search.trim().length >= 2) {
+				searchUsers(search);
+			} else {
+				clearResults();
+			}
+		}, 300);
 
-		if (search.trim().length < 3) {
-			return toast.error("Search term must be at least 3 characters long");
-		}
+		return () => clearTimeout(timer);
+	}, [search]);
 
-		const conversation = conversations.find((c) =>
-			c.fullName.toLowerCase().includes(search.toLowerCase())
-		);
-
-		if (conversation) {
-			setSelectedConversation(conversation);
-			setSearch("");
-		} else {
-			toast.error("No such user found!");
-		}
+	const handleUserSelect = (user) => {
+		setSelectedConversation(user);
+		setSearch("");
+		clearResults();
 	};
-  return (
-	<form className="search-form" onSubmit={handleSubmit}>
-		<div className="search-box">
-			<IoSearchSharp className="search-icon" />
 
-			<input
-				type="text"
-				className="search-input"
-				placeholder="Search conversations..."
-				value={search}
-				onChange={(e) => setSearch(e.target.value)}
-			/>
+return (
+<div className="search-container">
+<form
+className="search-form"
+onSubmit={(e) => e.preventDefault()}
+>
+<div className="search-box">
+<IoSearchSharp className="search-icon" />
 
-			{search && (
-				<button
-					type="submit"
-					className="search-submit"
-				>
-					Go
-				</button>
-			)}
-		</div>
-	</form>
+<input
+type="text"
+className="search-input"
+placeholder="Search users..."
+value={search}
+onChange={(e) => setSearch(e.target.value)}
+/>
+
+{loading && (
+<div className="search-spinner"></div>
+)}
+</div>
+</form>
+
+{search.trim().length >= 2 && (
+<div className="search-results">
+{!loading && users.length === 0 ? (
+<div className="no-search-results">
+No users found
+</div>
+) : (
+users.map((user) => (
+<button
+key={user._id}
+type="button"
+className="search-result"
+onClick={() => handleUserSelect(user)}
+>
+<div className="search-result-info">
+<h4>{user.fullName}</h4>
+<p>@{user.username}</p>
+</div>
+</button>
+))
+)}
+</div>
+)}
+</div>
 );
-	
 };
 
 export default SearchInput;

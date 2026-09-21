@@ -3,53 +3,257 @@ import "../../style/Message.css";
 import { useAuthContext } from "../../context/AuthContext";
 import { extractTime } from "../../utils/extractTime";
 import useConversation from "../../zustand/useConversation";
+import toast from "react-hot-toast";
 
 const Message = ({ message }) => {
-	const { authUser } = useAuthContext();
-	const { selectedConversation } = useConversation();
+const { authUser } = useAuthContext();
 
-	const fromMe = message.senderId === authUser._id;
-	const formattedTime = extractTime(message.createdAt);
+const {
+selectedConversation,
+setReplyingTo,
+setEditingMessage,
+removeMessage,
+} = useConversation();
 
-	const chatClass = fromMe ? "chat-end" : "chat-start";
-	const bubbleClass = fromMe ? "message-bubble own-message" : "message-bubble";
+const fromMe =
+message.senderId === authUser._id;
 
-	const profilePic = fromMe
-		? authUser.profilePic
-		: selectedConversation?.profilePic;
+const formattedTime = extractTime(
+message.createdAt
+);
 
-	const shakeClass = message.shouldShake ? "shake" : "";
+const profilePic = fromMe
+? authUser.profilePic
+: selectedConversation?.profilePic;
 
-	return (
-	<div className={`message-row ${fromMe ? "outgoing" : "incoming"} ${shakeClass}`}>
-		{!fromMe && (
-			<div className="message-avatar">
-				<img src={profilePic} alt={selectedConversation?.fullName} />
-			</div>
-		)}
+const shakeClass = message.shouldShake
+? "shake"
+: "";
 
-		<div className="message-content">
-			<div className={`message-bubble ${fromMe ? "sent" : "received"}`}>
-				<p>{message.message}</p>
+const getMessageStatus = () => {
+if (!fromMe) return null;
 
-				<div className="message-meta">
-					<span>{formattedTime}</span>
+if (
+message.status === "read" ||
+message.status === "delivered"
+) {
+return "✓✓";
+}
 
-					{fromMe && (
-						<span className="message-status">
-							✓✓
-						</span>
-					)}
+return "✓";
+};
+
+const handleReply = () => {
+setReplyingTo(message);
+};
+
+const handleEdit = () => {
+if (message.messageType !== "text") {
+return;
+}
+
+setEditingMessage(message);
+};
+
+const handleDelete = () => {
+	toast(
+		(t) => (
+			<div className="delete-confirm-toast">
+				<p>Are you sure you want to delete this message?</p>
+
+				<div className="delete-confirm-actions">
+					<button
+						onClick={() => {
+							toast.dismiss(t.id);
+							confirmDelete();
+						}}
+					>
+						Delete
+					</button>
+
+					<button
+						onClick={() => toast.dismiss(t.id)}
+					>
+						Cancel
+					</button>
 				</div>
 			</div>
-		</div>
+		),
+		{
+			duration: 5000,
+		}
+	);
+};
 
-		{fromMe && (
-			<div className="message-avatar">
-				<img src={profilePic} alt="You" />
+const confirmDelete = async () => {
+	try {
+		const res = await fetch(
+			`/api/messages/delete/${message._id}`,
+			{
+				method: "DELETE",
+			}
+		);
+
+		const data = await res.json();
+
+		if (data.error) {
+			throw new Error(data.error);
+		}
+
+		removeMessage(message._id);
+
+		toast.success("Message deleted");
+	} catch (error) {
+		toast.error(error.message);
+	}
+};
+
+const renderMessageContent = () => {
+if (
+message.messageType === "image" ||
+message.messageType === "gif"
+) {
+return (
+	<img
+		src={`http://localhost:5000${message.fileUrl}`}
+		alt={message.fileName || "Image"}
+		className="message-image"
+	/>
+);
+}
+
+if (message.messageType === "file") {
+return (
+	<a
+		href={`http://localhost:5000${message.fileUrl}`}
+		target="_blank"
+		rel="noopener noreferrer"
+		className="message-file"
+	>
+		<span className="message-file-icon">
+			📄
+		</span>
+
+		<span className="message-file-info">
+			<span className="message-file-name">
+				{message.fileName}
+			</span>
+
+			<span className="message-file-type">
+				{message.fileType}
+			</span>
+		</span>
+	</a>
+);
+}
+
+return <p>{message.message}</p>;
+};
+
+return (
+<div
+className={`message-row ${
+	fromMe ? "outgoing" : "incoming"
+} ${shakeClass}`}
+>
+{!fromMe && (
+	<div className="message-avatar">
+		<img
+			src={profilePic}
+			alt={
+				selectedConversation?.fullName
+			}
+		/>
+	</div>
+)}
+
+<div className="message-content">
+	<div
+		className={`message-bubble ${
+			fromMe ? "sent" : "received"
+		}`}
+	>
+		{message.replyTo && (
+			<div className="replied-message">
+				<div className="replied-message-label">
+					↩ Replied to
+				</div>
+
+				<p>
+					{message.replyTo.message ||
+						"Attachment"}
+				</p>
 			</div>
 		)}
+
+		{renderMessageContent()}
+
+		<div className="message-meta">
+			<span>{formattedTime}</span>
+
+			{message.edited && (
+				<span className="edited-label">
+					edited
+				</span>
+			)}
+
+			{fromMe && (
+				<span
+					className={`message-status ${
+						message.status === "read"
+							? "read"
+							: ""
+					}`}
+				>
+					{getMessageStatus()}
+				</span>
+			)}
+		</div>
 	</div>
+
+	<div className="message-actions">
+		<button
+			type="button"
+			className="reply-btn"
+			onClick={handleReply}
+		>
+			Reply
+		</button>
+
+		{fromMe && (
+			<>
+				{message.messageType ===
+					"text" && (
+					<button
+						type="button"
+						className="edit-btn"
+						onClick={handleEdit}
+					>
+						Edit
+					</button>
+				)}
+
+				<button
+					type="button"
+					className="delete-btn"
+					onClick={handleDelete}
+				>
+					Delete
+				</button>
+			</>
+		)}
+	</div>
+</div>
+
+{fromMe && (
+	<div className="message-avatar">
+		<img
+			src={profilePic}
+			alt="You"
+		/>
+	</div>
+)}
+</div>
 );
 };
 

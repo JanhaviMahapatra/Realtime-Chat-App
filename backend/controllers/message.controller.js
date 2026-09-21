@@ -1,69 +1,461 @@
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
-import { getReceiverSocketId, io } from "../socket/socket.js";
+
+import {
+getReceiverSocketId,
+io,
+} from "../socket/socket.js";
+
 
 export const sendMessage = async (req, res) => {
-	try {
-		const { message } = req.body;
-		const { id: receiverId } = req.params;
-		const senderId = req.user._id;
+try {
+const { message, replyTo } = req.body;
+const { id: receiverId } = req.params;
+const senderId = req.user._id;
 
-		let conversation = await Conversation.findOne({
-			participants: { $all: [senderId, receiverId] },
-		});
+let messageType = "text";
+let fileUrl = null;
+let fileName = null;
+let fileType = null;
 
-		if (!conversation) {
-			conversation = await Conversation.create({
-				participants: [senderId, receiverId],
-			});
+
+if (req.file) {
+	fileUrl = `/uploads/${req.file.filename}`;
+	fileName = req.file.originalname;
+	fileType = req.file.mimetype;
+
+
+	if (req.file.mimetype.startsWith("image/")) {
+		if (req.file.mimetype === "image/gif") {
+			messageType = "gif";
+		} else {
+			messageType = "image";
 		}
+	} else {
+		messageType = "file";
+	}
+}
 
-		const newMessage = new Message({
+
+if (
+	messageType === "text" &&
+	(!message || !message.trim())
+) {
+	return res.status(400).json({
+		error: "Message cannot be empty",
+	});
+}
+
+if (
+	messageType !== "text" &&
+	!req.file
+) {
+	return res.status(400).json({
+		error: "File is required",
+	});
+}
+
+
+let conversation = await Conversation.findOne({
+	participants: {
+		$all: [senderId, receiverId],
+	},
+});
+
+if (!conversation) {
+	conversation = await Conversation.create({
+		participants: [
 			senderId,
 			receiverId,
-			message,
-		});
+		],
+	});
+}
 
-		if (newMessage) {
-			conversation.messages.push(newMessage._id);
-		}
 
-		// await conversation.save();
-		// await newMessage.save();
+const newMessage = new Message({
+	senderId,
+	receiverId,
 
-		// this will run in parallel
-		await Promise.all([conversation.save(), newMessage.save()]);
+	message:
+		messageType === "text"
+			? message.trim()
+			: "",
 
-		// SOCKET IO FUNCTIONALITY WILL GO HERE
-		const receiverSocketId = getReceiverSocketId(receiverId);
-		if (receiverSocketId) {
-			// io.to(<socket_id>).emit() used to send events to specific client
-			io.to(receiverSocketId).emit("newMessage", newMessage);
-		}
+	messageType,
 
-		res.status(201).json(newMessage);
-	} catch (error) {
-		console.log("Error in sendMessage controller: ", error.message);
-		res.status(500).json({ error: "Internal server error" });
-	}
+	fileUrl,
+	fileName,
+	fileType,
+
+	replyTo: replyTo || null,
+
+	status: "sent",
+});
+
+conversation.messages.push(
+	newMessage._id
+);
+
+await Promise.all([
+	conversation.save(),
+	newMessage.save(),
+]);
+
+
+const receiverSocketId =
+	getReceiverSocketId(receiverId);
+
+if (receiverSocketId) {
+	newMessage.status = "delivered";
+
+	await newMessage.save();
+}
+
+
+if (newMessage.replyTo) {
+	await newMessage.populate({
+		path: "replyTo",
+		select:
+			"message senderId receiverId createdAt messageType fileUrl fileName",
+	});
+}
+
+if (receiverSocketId) {
+	io.to(receiverSocketId).emit(
+		"newMessage",
+		newMessage.toObject()
+	);
+
+	io.emit("messageDelivered", {
+		messageId: newMessage._id,
+	});
+}
+
+res.status(201).json(
+	newMessage
+);
+} catch (error) {
+console.log(
+	"Error in sendMessage controller:",
+	error.message
+);
+
+res.status(500).json({
+	error: "Internal server error",
+});
+}
 };
 
-export const getMessages = async (req, res) => {
-	try {
-		const { id: userToChatId } = req.params;
-		const senderId = req.user._id;
 
-		const conversation = await Conversation.findOne({
-			participants: { $all: [senderId, userToChatId] },
-		}).populate("messages"); // NOT REFERENCE BUT ACTUAL MESSAGES
+export const getMessages = async (
+req,
+res
+) => {
+try {
+const {
+	id: userToChatId,
+} = req.params;
 
-		if (!conversation) return res.status(200).json([]);
+const senderId =
+	req.user._id;
 
-		const messages = conversation.messages;
+const conversation =
+	await Conversation.findOne({
+		participants: {
+			$all: [
+				senderId,
+				userToChatId,
+			],
+		},
+	}).populate({
+		path: "messages",
+		populate: {
+			path: "replyTo",
+			select:
+				"message senderId receiverId createdAt messageType fileUrl fileName",
+		},
+	});
 
-		res.status(200).json(messages);
-	} catch (error) {
-		console.log("Error in getMessages controller: ", error.message);
-		res.status(500).json({ error: "Internal server error" });
+if (!conversation) {
+	return res.status(200).json([]);
+}
+
+const messages =
+	conversation.messages;
+
+res.status(200).json(messages);
+} catch (error) {
+console.log(
+	"Error in getMessages controller:",
+	error.message
+);
+
+res.status(500).json({
+	error: "Internal server error",
+});
+}
+};
+
+export const markMessagesAsRead = async (
+req,
+res
+) => {
+try {
+const {
+	id: senderId,
+} = req.params;
+
+const receiverId =
+	req.user._id;
+
+const messages =
+	await Message.find({
+		senderId,
+		receiverId,
+		status: {
+			$ne: "read",
+		},
+	}).select("_id");
+
+if (messages.length === 0) {
+	return res.status(200).json({
+		message:
+			"No unread messages",
+		updatedCount: 0,
+	});
+}
+
+await Message.updateMany(
+	{
+		senderId,
+		receiverId,
+		status: {
+			$ne: "read",
+		},
+	},
+	{
+		$set: {
+			status: "read",
+		},
 	}
+);
+
+const senderSocketId =
+	getReceiverSocketId(
+		senderId
+	);
+
+if (senderSocketId) {
+	io.to(senderSocketId).emit(
+		"messageRead",
+		{
+			messageIds:
+				messages.map(
+					(message) =>
+						message._id
+				),
+		}
+	);
+}
+
+res.status(200).json({
+	message:
+		"Messages marked as read",
+	updatedCount:
+		messages.length,
+});
+} catch (error) {
+console.log(
+	"Error in markMessagesAsRead:",
+	error.message
+);
+
+res.status(500).json({
+	error: "Internal server error",
+});
+}
+};
+
+export const editMessage = async (
+req,
+res
+) => {
+try {
+const {
+	id: messageId,
+} = req.params;
+
+const {
+	message,
+} = req.body;
+
+const userId =
+	req.user._id;
+
+if (
+	!message ||
+	!message.trim()
+) {
+	return res.status(400).json({
+		error:
+			"Message cannot be empty",
+	});
+}
+
+const existingMessage =
+	await Message.findById(
+		messageId
+	);
+
+if (!existingMessage) {
+	return res.status(404).json({
+		error:
+			"Message not found",
+	});
+}
+
+if (
+	existingMessage.senderId.toString() !==
+	userId.toString()
+) {
+	return res.status(403).json({
+		error:
+			"You can only edit your own messages",
+	});
+}
+
+if (
+	existingMessage.messageType !==
+	"text"
+) {
+	return res.status(400).json({
+		error:
+			"Only text messages can be edited",
+	});
+}
+
+existingMessage.message =
+	message.trim();
+
+existingMessage.edited =
+	true;
+
+await existingMessage.save();
+
+if (existingMessage.replyTo) {
+	await existingMessage.populate({
+		path: "replyTo",
+		select:
+			"message senderId receiverId createdAt messageType fileUrl fileName",
+	});
+}
+
+const receiverSocketId =
+	getReceiverSocketId(
+		existingMessage.receiverId.toString()
+	);
+
+if (receiverSocketId) {
+	io.to(receiverSocketId).emit(
+		"messageEdited",
+		{
+			message:
+				existingMessage.toObject(),
+		}
+	);
+}
+
+res.status(200).json(
+	existingMessage
+);
+} catch (error) {
+console.log(
+	"Error in editMessage controller:",
+	error.message
+);
+
+res.status(500).json({
+	error: "Internal server error",
+});
+}
+};
+
+export const deleteMessage = async (
+req,
+res
+) => {
+try {
+const {
+	id: messageId,
+} = req.params;
+
+const userId =
+	req.user._id;
+
+const message =
+	await Message.findById(
+		messageId
+	);
+
+if (!message) {
+	return res.status(404).json({
+		error:
+			"Message not found",
+	});
+}
+
+if (
+	message.senderId.toString() !==
+	userId.toString()
+) {
+	return res.status(403).json({
+		error:
+			"You can only delete your own messages",
+	});
+}
+
+await Conversation.updateOne(
+	{
+		messages: messageId,
+	},
+	{
+		$pull: {
+			messages: messageId,
+		},
+	}
+);
+
+await Message.findByIdAndDelete(
+	messageId
+);
+
+const receiverSocketId =
+	getReceiverSocketId(
+		message.receiverId.toString()
+	);
+
+if (receiverSocketId) {
+	io.to(receiverSocketId).emit(
+		"messageDeleted",
+		{
+			messageId,
+		}
+	);
+}
+
+res.status(200).json({
+	message:
+		"Message deleted successfully",
+	messageId,
+});
+} catch (error) {
+console.log(
+	"Error in deleteMessage controller:",
+	error.message
+);
+
+res.status(500).json({
+	error: "Internal server error",
+});
+}
 };

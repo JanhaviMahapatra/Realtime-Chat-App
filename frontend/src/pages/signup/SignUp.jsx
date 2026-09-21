@@ -2,123 +2,131 @@ import "../../style/SignUp.css";
 
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 
 import GenderCheckbox from "./GenderCheckbox";
 import useSignup from "../../hooks/useSignup";
 
 const SignUp = () => {
-	const [inputs, setInputs] = useState({
-		fullName: "",
-		username: "",
-		password: "",
-		confirmPassword: "",
-		gender: "",
-	});
+const [inputs, setInputs] = useState({
+fullName: "",
+username: "",
+password: "",
+confirmPassword: "",
+gender: "",
+});
 
-	const { loading, signup } = useSignup();
+const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] =
+useState(false);
 
-	const handleCheckboxChange = (gender) => {
-		setInputs({ ...inputs, gender });
-	};
+const { loading, signup } = useSignup();
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		await signup(inputs);
-	};
+const handleCheckboxChange = (gender) => {
+setInputs({ ...inputs, gender });
+};
 
-	return (
-	<div className="auth-page">
-		<div className="auth-layout">
+const handleSubmit = async (e) => {
+e.preventDefault();
+await signup(inputs);
+};
 
-			<div className="auth-banner">
+return (
+<div className="auth-page">
+	<div className="auth-layout">
 
-				<div className="banner-content">
+		<div className="auth-banner">
+			<div className="banner-content">
 
-					<div className="logo">
-						💬
+				<div className="logo">
+					💬
+				</div>
+
+				<h1>Create your account</h1>
+
+				<p>
+					Join ChatApp and experience fast, secure, real-time conversations
+					with friends and teammates.
+				</p>
+
+				<div className="banner-features">
+
+					<div className="feature">
+						<span>⚡</span>
+						<p>Instant messaging</p>
 					</div>
 
-					<h1>Create your account</h1>
+					<div className="feature">
+						<span>🔒</span>
+						<p>Private & secure</p>
+					</div>
 
-					<p>
-						Join ChatApp and experience fast, secure, real-time conversations
-						with friends and teammates.
-					</p>
-
-					<div className="banner-features">
-
-						<div className="feature">
-							<span>⚡</span>
-							<p>Instant messaging</p>
-						</div>
-
-						<div className="feature">
-							<span>🔒</span>
-							<p>Private & secure</p>
-						</div>
-
-						<div className="feature">
-							<span>🌍</span>
-							<p>Available everywhere</p>
-						</div>
-
+					<div className="feature">
+						<span>🌍</span>
+						<p>Available everywhere</p>
 					</div>
 
 				</div>
 
 			</div>
+		</div>
 
-			<div className="auth-card">
+		<div className="auth-card">
 
-				<div className="card-header">
-					<h2>Create Account</h2>
-					<p>Fill in your details to get started</p>
-				</div>
+			<div className="card-header">
+				<h2>Create Account</h2>
+				<p>Fill in your details to get started</p>
+			</div>
 
-				<form
-					className="signup-form"
-					onSubmit={handleSubmit}
-				>
+			<form
+				className="signup-form"
+				onSubmit={handleSubmit}
+			>
 
-					<div className="form-grid">
+				<div className="form-grid">
 
-						<div className="form-group">
-							<label>Full Name</label>
+					<div className="form-group">
+						<label>Full Name</label>
 
+						<input
+							type="text"
+							placeholder="John Doe"
+							value={inputs.fullName}
+							onChange={(e) =>
+								setInputs({
+									...inputs,
+									fullName: e.target.value,
+								})
+							}
+						/>
+					</div>
+
+					<div className="form-group">
+						<label>Username</label>
+
+						<input
+							type="text"
+							placeholder="johndoe"
+							value={inputs.username}
+							onChange={(e) =>
+								setInputs({
+									...inputs,
+									username: e.target.value,
+								})
+							}
+						/>
+					</div>
+
+					<div className="form-group">
+						<label>Password</label>
+
+						<div className="password-wrapper">
 							<input
-								type="text"
-								placeholder="John Doe"
-								value={inputs.fullName}
-								onChange={(e) =>
-									setInputs({
-										...inputs,
-										fullName: e.target.value,
-									})
+								type={
+									showPassword
+										? "text"
+										: "password"
 								}
-							/>
-						</div>
-
-						<div className="form-group">
-							<label>Username</label>
-
-							<input
-								type="text"
-								placeholder="johndoe"
-								value={inputs.username}
-								onChange={(e) =>
-									setInputs({
-										...inputs,
-										username: e.target.value,
-									})
-								}
-							/>
-						</div>
-
-						<div className="form-group">
-							<label>Password</label>
-
-							<input
-								type="password"
 								placeholder="Enter password"
 								value={inputs.password}
 								onChange={(e) =>
@@ -128,15 +136,39 @@ const SignUp = () => {
 									})
 								}
 							/>
+
+							<button
+								type="button"
+								className="password-toggle"
+								onClick={() =>
+									setShowPassword(
+										(prev) => !prev
+									)
+								}
+							>
+								{showPassword ? (
+									<IoEyeOff />
+								) : (
+									<IoEye />
+								)}
+							</button>
 						</div>
+					</div>
 
-						<div className="form-group">
-							<label>Confirm Password</label>
+					<div className="form-group">
+						<label>Confirm Password</label>
 
+						<div className="password-wrapper">
 							<input
-								type="password"
+								type={
+									showConfirmPassword
+										? "text"
+										: "password"
+								}
 								placeholder="Confirm password"
-								value={inputs.confirmPassword}
+								value={
+									inputs.confirmPassword
+								}
 								onChange={(e) =>
 									setInputs({
 										...inputs,
@@ -145,41 +177,58 @@ const SignUp = () => {
 									})
 								}
 							/>
+
+							<button
+								type="button"
+								className="password-toggle"
+								onClick={() =>
+									setShowConfirmPassword(
+										(prev) => !prev
+									)
+								}
+							>
+								{showConfirmPassword ? (
+									<IoEyeOff />
+								) : (
+									<IoEye />
+								)}
+							</button>
 						</div>
-
 					</div>
 
-					<GenderCheckbox
-						onCheckboxChange={handleCheckboxChange}
-						selectedGender={inputs.gender}
-					/>
+				</div>
 
-					<button
-						type="submit"
-						className="signup-btn"
-						disabled={loading}
-					>
-						{loading ? (
-							<div className="spinner"></div>
-						) : (
-							"Create Account"
-						)}
-					</button>
+				<GenderCheckbox
+					onCheckboxChange={handleCheckboxChange}
+					selectedGender={inputs.gender}
+				/>
 
-					<div className="auth-footer">
-						<span>Already have an account?</span>
+				<button
+					type="submit"
+					className="signup-btn"
+					disabled={loading}
+				>
+					{loading ? (
+						<div className="spinner"></div>
+					) : (
+						"Create Account"
+					)}
+				</button>
 
-						<Link to="/login">
-							Sign In
-						</Link>
-					</div>
+				<div className="auth-footer">
+					<span>Already have an account?</span>
 
-				</form>
+					<Link to="/login">
+						Sign In
+					</Link>
+				</div>
 
-			</div>
+			</form>
 
 		</div>
+
 	</div>
+</div>
 );
 };
 

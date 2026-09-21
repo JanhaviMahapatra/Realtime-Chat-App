@@ -67,3 +67,45 @@
 		transform: rotate(360deg);
 	}
 }
+
+.logout-confirm-toast {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.logout-confirm-toast p {
+	margin: 0;
+	font-size: 14px;
+	color: #111319;
+}
+
+.logout-confirm-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.logout-confirm-actions button {
+	padding: 6px 12px;
+	border: none;
+	border-radius: 7px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: .2s ease;
+}
+
+.confirm-logout-btn {
+	background: #ef6b73;
+	color: white;
+}
+
+.cancel-logout-btn {
+	background: #2f3948;
+	color: #d1d5db;
+}
+
+.logout-confirm-actions button:hover {
+	opacity: .85;
+}

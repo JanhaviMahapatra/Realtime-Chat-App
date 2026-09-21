@@ -25,7 +25,10 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			default: "",
 		},
-		// createdAt, updatedAt => Member since <createdAt>
+		lastSeen:{
+			type:Date,
+			default:null,
+		}
 	},
 	{ timestamps: true }
 );

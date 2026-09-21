@@ -83,3 +83,73 @@
 
 	color: #95a2b4;
 }
+
+/* Message action buttons */
+
+.message-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.message-row.outgoing .message-actions {
+  justify-content: flex-end;
+}
+
+.reply-btn,
+.edit-btn {
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+
+.reply-btn {
+  color: #8b98aa;
+}
+
+.reply-btn:hover {
+  background: #1b2330;
+  color: #4f8cff;
+}
+
+.edit-btn {
+  color: #8b98aa;
+}
+
+.edit-btn:hover {
+  background: #1b2330;
+  color: #60a5fa;
+}
+
+.edit-btn:active,
+.reply-btn:active {
+  transform: scale(0.95);
+}
+
+.delete-btn {
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #8b98aa;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: #2a1f23;
+  color: #ef6b73;
+}
+
+.delete-btn:active {
+  transform: scale(0.95);
+}
