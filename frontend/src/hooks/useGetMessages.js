@@ -4,57 +4,60 @@ import useMarkMessagesAsRead from "./useMarkMessagesAsRead";
 import toast from "react-hot-toast";
 
 const useGetMessages = () => {
-	const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
 
-	const {
-		messages,
-		setMessages,
-		selectedConversation,
-	} = useConversation();
+const {
+messages,
+setMessages,
+selectedConversation,
+} = useConversation();
 
-	const { markMessagesAsRead } = useMarkMessagesAsRead();
+const { markMessagesAsRead } = useMarkMessagesAsRead();
 
-	useEffect(() => {
-		const getMessages = async () => {
-			setLoading(true);
+useEffect(() => {
+const getMessages = async () => {
+	setLoading(true);
 
-			try {
-				const res = await fetch(
-					`${import.meta.env.VITE_API_URL}/api/messages/${selectedConversation._id}`
-				);
-
-				const data = await res.json();
-
-				if (data.error) {
-					throw new Error(data.error);
-				}
-
-				setMessages(data);
-
-				// Mark messages from the selected user as read
-				await markMessagesAsRead(
-					selectedConversation._id
-				);
-			} catch (error) {
-				toast.error(error.message);
-			} finally {
-				setLoading(false);
+	try {
+		const res = await fetch(
+			`${import.meta.env.VITE_API_URL}/api/messages/${selectedConversation._id}`,
+			{
+				credentials:"include"
 			}
-		};
+		);
 
-		if (selectedConversation?._id) {
-			getMessages();
+		const data = await res.json();
+
+		if (data.error) {
+			throw new Error(data.error);
 		}
-	}, [
-		selectedConversation?._id,
-		setMessages,
-		markMessagesAsRead,
-	]);
 
-	return {
-		messages,
-		loading,
-	};
+		setMessages(data);
+
+		// Mark messages from the selected user as read
+		await markMessagesAsRead(
+			selectedConversation._id
+		);
+	} catch (error) {
+		toast.error(error.message);
+	} finally {
+		setLoading(false);
+	}
+};
+
+if (selectedConversation?._id) {
+	getMessages();
+}
+}, [
+selectedConversation?._id,
+setMessages,
+markMessagesAsRead,
+]);
+
+return {
+messages,
+loading,
+};
 };
 
 export default useGetMessages;

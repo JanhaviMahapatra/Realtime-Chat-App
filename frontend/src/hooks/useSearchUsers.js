@@ -16,7 +16,10 @@ setLoading(true);
 try {
   // Can also use axios instead of fetch
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/api/users/search?query=${encodeURIComponent(query.trim())}`
+    `${import.meta.env.VITE_API_URL}/api/users/search?query=${encodeURIComponent(query.trim())}`,
+    {
+      credentials: "include",
+    }
   );
 
   const data = await res.json();

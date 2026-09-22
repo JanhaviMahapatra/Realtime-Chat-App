@@ -53,6 +53,7 @@ try {
     `${import.meta.env.VITE_API_URL}/api/messages/send/${selectedConversation._id}`,
     {
       method: "POST",
+      credentials: "include",
       body: formData,
     }
   );
