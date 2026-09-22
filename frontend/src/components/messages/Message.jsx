@@ -88,9 +88,10 @@ const handleDelete = () => {
 const confirmDelete = async () => {
 	try {
 		const res = await fetch(
-			`/api/messages/delete/${message._id}`,
+			`${import.meta.env.VITE_API_URL}/api/messages/delete/${message._id}`,
 			{
 				method: "DELETE",
+				credentials: "include",
 			}
 		);
 
@@ -115,7 +116,7 @@ message.messageType === "gif"
 ) {
 return (
 	<img
-		src={`http://localhost:5000${message.fileUrl}`}
+		src={message.fileUrl}
 		alt={message.fileName || "Image"}
 		className="message-image"
 	/>
@@ -125,7 +126,7 @@ return (
 if (message.messageType === "file") {
 return (
 	<a
-		href={`http://localhost:5000${message.fileUrl}`}
+		href={message.fileUrl}
 		target="_blank"
 		rel="noopener noreferrer"
 		className="message-file"

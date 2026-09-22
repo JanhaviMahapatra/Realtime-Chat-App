@@ -212,7 +212,7 @@ const MessageInput = () => {
 	const handleEdit = async () => {
 		try {
 			const res = await fetch(
-				`/api/messages/edit/${editingMessage._id}`,
+				`${import.meta.env.VITE_API_URL}/api/messages/edit/${editingMessage._id}`,
 				{
 					method: "PUT",
 					headers: {
