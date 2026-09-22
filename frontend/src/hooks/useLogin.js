@@ -17,7 +17,6 @@ const res = await fetch(
 `${import.meta.env.VITE_API_URL}/api/auth/login`,
 {
 	method: "POST",
-	credentials: "include",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify({ username, password }),
 }
@@ -29,12 +28,13 @@ const res = await fetch(
 		throw new Error(data.error);
 	}
 
+	localStorage.setItem("chat-token", data.token);
 	localStorage.setItem("chat-user", JSON.stringify(data));
 	setAuthUser(data);
 } catch (error) {
 	toast.error(error.message);
 } finally {
-	setLoading(false);
+setLoading(false);
 }
 };
 

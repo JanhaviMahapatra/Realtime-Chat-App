@@ -15,10 +15,14 @@ setLoading(true);
 
 try {
   // Can also use axios instead of fetch
+  const token = localStorage.getItem("chat-token");
+
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/api/users/search?query=${encodeURIComponent(query.trim())}`,
     {
-      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
 

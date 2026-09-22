@@ -14,7 +14,6 @@ const useLogout = () => {
 				`${import.meta.env.VITE_API_URL}/api/auth/logout`,
 				{
 					method: "POST",
-					credentials: "include",
 					headers: { "Content-Type": "application/json" },
 				}
 			);
@@ -26,6 +25,7 @@ const useLogout = () => {
 			}
 
 			localStorage.removeItem("chat-user");
+			localStorage.removeItem("chat-token");
 			setAuthUser(null);
 		} catch (error) {
 			toast.error(error.message);

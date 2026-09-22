@@ -10,11 +10,15 @@ if (!senderId) return;
 setLoading(true);
 
 try {
+const token = localStorage.getItem("chat-token");
+
 const res = await fetch(
 	`${import.meta.env.VITE_API_URL}/api/messages/read/${senderId}`,
 	{
 		method: "POST",
-		credentials: "include",
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
 	}
 );
 

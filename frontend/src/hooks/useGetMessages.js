@@ -19,10 +19,14 @@ const getMessages = async () => {
 	setLoading(true);
 
 	try {
+		const token = localStorage.getItem("chat-token");
+
 		const res = await fetch(
 			`${import.meta.env.VITE_API_URL}/api/messages/${selectedConversation._id}`,
 			{
-				credentials:"include"
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
 			}
 		);
 

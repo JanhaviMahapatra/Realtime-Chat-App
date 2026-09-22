@@ -49,11 +49,15 @@ try {
     );
   }
 
+  const token = localStorage.getItem("chat-token");
+
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/api/messages/send/${selectedConversation._id}`,
     {
       method: "POST",
-      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     }
   );
