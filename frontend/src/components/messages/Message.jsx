@@ -87,11 +87,15 @@ const handleDelete = () => {
 
 const confirmDelete = async () => {
 	try {
+		const token = localStorage.getItem("chat-token");
+
 		const res = await fetch(
 			`${import.meta.env.VITE_API_URL}/api/messages/delete/${message._id}`,
 			{
 				method: "DELETE",
-				credentials: "include",
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
 			}
 		);
 

@@ -210,58 +210,61 @@ const MessageInput = () => {
 	};
 
 	const handleEdit = async () => {
-		try {
-			const res = await fetch(
-				`${import.meta.env.VITE_API_URL}/api/messages/edit/${editingMessage._id}`,
-				{
-					method: "PUT",
-					headers: {
-						"Content-Type":
-							"application/json",
-					},
-					body: JSON.stringify({
-						message:
-							message.trim(),
-					}),
-				}
-			);
+	try {
+		const token = localStorage.getItem("chat-token");
 
-			const data =
-				await res.json();
-
-			if (data.error) {
-				throw new Error(
-					data.error
-				);
+		const res = await fetch(
+			`${import.meta.env.VITE_API_URL}/api/messages/edit/${editingMessage._id}`,
+			{
+				method: "PUT",
+				headers: {
+					"Content-Type":
+						"application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					message:
+						message.trim(),
+				}),
 			}
+		);
 
-			const {
-				updateMessage,
-			} = useConversation.getState();
+		const data =
+			await res.json();
 
-			updateMessage(data);
-
-			setEditingMessage(null);
-			setMessage("");
-			setShowEmojiPicker(false);
-
-			if (typingTimeoutRef.current) {
-				clearTimeout(
-					typingTimeoutRef.current
-				);
-			}
-
-			socket?.emit("stopTyping", {
-				receiverId:
-					selectedConversation?._id,
-			});
-		} catch (error) {
-			console.error(
-				"Error editing message:",
-				error.message
+		if (data.error) {
+			throw new Error(
+				data.error
 			);
 		}
-	};
+
+		const {
+			updateMessage,
+		} = useConversation.getState();
+
+		updateMessage(data);
+
+		setEditingMessage(null);
+		setMessage("");
+		setShowEmojiPicker(false);
+
+		if (typingTimeoutRef.current) {
+			clearTimeout(
+				typingTimeoutRef.current
+			);
+		}
+
+		socket?.emit("stopTyping", {
+			receiverId:
+				selectedConversation?._id,
+		});
+	} catch (error) {
+		console.error(
+			"Error editing message:",
+			error.message
+		);
+	}
+};
 
 	const cancelEdit = () => {
 		setEditingMessage(null);
