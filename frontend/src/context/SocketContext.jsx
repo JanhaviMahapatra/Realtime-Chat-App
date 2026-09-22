@@ -1,4 +1,9 @@
-import { createContext, useContext, useEffect, useState,} from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 import { io } from "socket.io-client";
 
@@ -40,104 +45,178 @@ export const SocketContextProvider = ({ children }) => {
       return;
     }
 
-    const socket = io(import.meta.env.VITE_API_URL, {
-      query: {
-        userId: authUser._id,
-      },
-    });
+    const socket = io(
+      import.meta.env.VITE_API_URL,
+      {
+        transports: ["websocket", "polling"],
+
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+
+        query: {
+          userId: authUser._id,
+        },
+      }
+    );
 
     setSocket(socket);
 
     socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-    });
-
-    socket.on("connect_error", (error) => {
       console.log(
-        "Socket connection error:",
-        error.message
+        "Socket connected:",
+        socket.id
       );
     });
+
+    socket.on("disconnect", (reason) => {
+      console.log(
+        "Socket disconnected:",
+        reason
+      );
+    });
+
+    socket.on(
+      "connect_error",
+      (error) => {
+        console.log(
+          "Socket connection error:",
+          error.message
+        );
+      }
+    );
+
+    socket.io.on(
+      "reconnect_attempt",
+      (attempt) => {
+        console.log(
+          "Socket reconnect attempt:",
+          attempt
+        );
+      }
+    );
+
+    socket.io.on(
+      "reconnect",
+      (attempt) => {
+        console.log(
+          "Socket reconnected after attempt:",
+          attempt
+        );
+      }
+    );
 
     // Online users
-    socket.on("getOnlineUsers", (users) => {
-      console.log("Online users:", users);
+    socket.on(
+      "getOnlineUsers",
+      (users) => {
+        console.log(
+          "Online users:",
+          users
+        );
 
-      setOnlineUsers(users);
-    });
+        setOnlineUsers(users);
+      }
+    );
 
     // Last seen
-    socket.on("userLastSeen", ({ userId, lastSeen }) => {
-      console.log(
-        "User last seen:",
-        userId,
-        lastSeen
-      );
+    socket.on(
+      "userLastSeen",
+      ({ userId, lastSeen }) => {
+        console.log(
+          "User last seen:",
+          userId,
+          lastSeen
+        );
 
-      setLastSeenUsers((prev) => ({
-        ...prev,
-        [userId]: lastSeen,
-      }));
-    });
+        setLastSeenUsers((prev) => ({
+          ...prev,
+          [userId]: lastSeen,
+        }));
+      }
+    );
 
     // Message delivered
-    socket.on("messageDelivered", ({ messageId }) => {
-      console.log(
-        "Message delivered:",
-        messageId
-      );
+    socket.on(
+      "messageDelivered",
+      ({ messageId }) => {
+        console.log(
+          "Message delivered:",
+          messageId
+        );
 
-      updateMessageStatus(
-        messageId,
-        "delivered"
-      );
-    });
-
-    // Message read
-    socket.on("messageRead", ({ messageIds }) => {
-      console.log(
-        "Messages read:",
-        messageIds
-      );
-
-      messageIds.forEach((messageId) => {
         updateMessageStatus(
           messageId,
-          "read"
+          "delivered"
         );
-      });
-    });
+      }
+    );
+
+    // Message read
+    socket.on(
+      "messageRead",
+      ({ messageIds }) => {
+        console.log(
+          "Messages read:",
+          messageIds
+        );
+
+        messageIds.forEach(
+          (messageId) => {
+            updateMessageStatus(
+              messageId,
+              "read"
+            );
+          }
+        );
+      }
+    );
 
     // Message edited
-    socket.on("messageEdited", ({ message }) => {
-      console.log(
-        "Message edited:",
-        message
-      );
+    socket.on(
+      "messageEdited",
+      ({ message }) => {
+        console.log(
+          "Message edited:",
+          message
+        );
 
-      updateMessage(message);
-    });
+        updateMessage(message);
+      }
+    );
 
     // Message deleted
-    socket.on("messageDeleted", ({ messageId }) => {
-      console.log(
-        "Message deleted:",
-        messageId
-      );
+    socket.on(
+      "messageDeleted",
+      ({ messageId }) => {
+        console.log(
+          "Message deleted:",
+          messageId
+        );
 
-      removeMessage(messageId);
-    });
+        removeMessage(messageId);
+      }
+    );
 
     // User typing
-    socket.on("userTyping", ({ senderId }) => {
-      setTypingUsers((prev) => {
-        if (prev.includes(senderId)) {
-          return prev;
-        }
+    socket.on(
+      "userTyping",
+      ({ senderId }) => {
+        setTypingUsers((prev) => {
+          if (
+            prev.includes(senderId)
+          ) {
+            return prev;
+          }
 
-        return [...prev, senderId];
-      });
-    });
+          return [
+            ...prev,
+            senderId,
+          ];
+        });
+      }
+    );
 
     // User stopped typing
     socket.on(
@@ -145,14 +224,16 @@ export const SocketContextProvider = ({ children }) => {
       ({ senderId }) => {
         setTypingUsers((prev) =>
           prev.filter(
-            (userId) => userId !== senderId
+            (userId) =>
+              userId !== senderId
           )
         );
       }
     );
 
     return () => {
-      socket.close();
+      socket.removeAllListeners();
+      socket.disconnect();
 
       setSocket(null);
       setOnlineUsers([]);

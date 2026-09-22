@@ -52,50 +52,52 @@ const MessageInput = () => {
 		setReplyingTo,
 	]);
 
-	const handleTyping = (e) => {
-		const value = e.target.value;
+const handleTyping = (e) => {
+	const value = e.target.value;
 
-		setMessage(value);
+	setMessage(value);
 
-		if (
-			!socket ||
-			!selectedConversation?._id
-		) {
-			return;
-		}
+	if (
+		!socket ||
+		!socket.connected ||
+		!selectedConversation?._id
+	) {
+		return;
+	}
 
-		if (value.trim()) {
-			socket.emit("typing", {
-				receiverId:
-					selectedConversation._id,
-			});
+	if (typingTimeoutRef.current) {
+		clearTimeout(
+			typingTimeoutRef.current
+		);
+	}
 
-			if (typingTimeoutRef.current) {
-				clearTimeout(
-					typingTimeoutRef.current
-				);
-			}
+	if (value.trim()) {
+		socket.emit("typing", {
+			receiverId:
+				selectedConversation._id,
+		});
 
-			typingTimeoutRef.current =
-				setTimeout(() => {
-					socket.emit("stopTyping", {
-						receiverId:
-							selectedConversation._id,
-					});
-				}, 1000);
-		} else {
-			if (typingTimeoutRef.current) {
-				clearTimeout(
-					typingTimeoutRef.current
-				);
-			}
-
-			socket.emit("stopTyping", {
-				receiverId:
-					selectedConversation._id,
-			});
-		}
-	};
+		typingTimeoutRef.current =
+			setTimeout(() => {
+				if (
+					socket.connected
+				) {
+					socket.emit(
+						"stopTyping",
+						{
+							receiverId:
+								selectedConversation._id,
+						}
+					);
+				}
+			}, 1000);
+	} else {
+		socket.emit("stopTyping", {
+			receiverId:
+				selectedConversation._id,
+		});
+	}
+};
 
 	const handleFileSelect = (e) => {
 		const file = e.target.files?.[0];
