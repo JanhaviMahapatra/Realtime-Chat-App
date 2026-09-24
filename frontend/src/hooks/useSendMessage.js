@@ -10,69 +10,81 @@ const {setMessages, selectedConversation, replyingTo,} = useConversation();
 
 const sendMessage = async ( message = "",file = null) => {
 if (!selectedConversation?._id) {
-  return;
+return;
 }
 
 setLoading(true);
 
 try {
-  const formData = new FormData();
- 
-  //Add text message if available
-  if (message.trim()) {
-    formData.append(
-      "message",
-      message.trim()
-    );
-  }
+const formData = new FormData();
 
-  // Add file/image/GIF if available
-  if(file) {
-    formData.append(
-      "file",
-      file
-    );
-  }
+//Add text message if available
+if (message.trim()) {
+formData.append(
+"message",
+message.trim()
+);
+}
 
-  // Add reply information
-  if (replyingTo?._id) {
-    formData.append(
-      "replyTo",
-      replyingTo._id
-    );
-  }
+// Add file/image/GIF if available
+if(file) {
+formData.append(
+"file",
+file
+);
+}
 
-  const token = localStorage.getItem("chat-token");
+// Add reply information
+if (replyingTo?._id) {
+formData.append(
+"replyTo",
+replyingTo._id
+);
+}
 
-  const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/api/messages/send/${selectedConversation._id}`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    }
-  );
+const token = localStorage.getItem("chat-token");
 
-  const data = await res.json();
+const res = await fetch(
+`${import.meta.env.VITE_API_URL}/api/messages/send/${selectedConversation._id}`,
+{
+method: "POST",
+headers: {
+Authorization: `Bearer ${token}`,
+},
+body: formData,
+}
+);
 
-  if (data.error) {
-    throw new Error(data.error);
-  }
+const data = await res.json();
 
-  //Adding new message to current chat
-  setMessages((currentMessages) => [
-    ...currentMessages,
-    data,
-  ]);
+if (data.error) {
+throw new Error(data.error);
+}
 
-  return data;
+//Adding new message to current chat
+setMessages((currentMessages) => [
+...currentMessages,
+data,
+]);
+
+window.dispatchEvent(
+new CustomEvent(
+"conversationActivity",
+{
+detail: {
+userId:
+selectedConversation._id,
+},
+}
+)
+);
+
+return data;
 } catch (error) {
-  toast.error(error.message);
-  throw error;
+toast.error(error.message);
+throw error;
 } finally {
-  setLoading(false);
+setLoading(false);
 }
 };
 

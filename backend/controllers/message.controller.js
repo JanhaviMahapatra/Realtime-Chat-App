@@ -2,8 +2,8 @@ import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
 
 import {
-	getReceiverSocketId,
-	io,
+getReceiverSocketId,
+io,
 } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
@@ -51,34 +51,39 @@ if (
 	});
 }
 
-let conversation = await Conversation.findOne({
-	participants: {
-		$all: [senderId, receiverId],
-	},
-});
+let conversation =
+	await Conversation.findOne({
+		participants: {
+			$all: [
+				senderId,
+				receiverId,
+			],
+		},
+	});
 
 if (!conversation) {
-	conversation = await Conversation.create({
-		participants: [
-			senderId,
-			receiverId,
-		],
-	});
+	conversation =
+		await Conversation.create({
+			participants: [
+				senderId,
+				receiverId,
+			],
+		});
 }
 
-const newMessage = new Message({senderId,receiverId,
-message:
-messageType === "text" ? message.trim(): "",
-
-messageType,
-
-fileUrl,
-fileName,
-fileType,
-
-replyTo: replyTo || null,
-
-status: "sent",
+const newMessage = new Message({
+	senderId,
+	receiverId,
+	message:
+		messageType === "text"
+			? message.trim()
+			: "",
+	messageType,
+	fileUrl,
+	fileName,
+	fileType,
+	replyTo: replyTo || null,
+	status: "sent",
 });
 
 conversation.messages.push(
@@ -179,7 +184,10 @@ res.status(500).json({
 }
 };
 
-export const markMessagesAsRead = async (req, res) => {
+export const markMessagesAsRead = async (
+req,
+res
+) => {
 try {
 const {
 	id: senderId,
@@ -256,28 +264,27 @@ res.status(500).json({
 }
 };
 
-export const editMessage = async (req, res) => {
+export const editMessage = async (
+req,
+res
+) => {
 try {
+
+console.log("EDIT MESSAGE BODY:", req.body);
+		console.log("EDIT MESSAGE FILE:", req.file);
+			
 const {
 	id: messageId,
 } = req.params;
 
-const {
-	message,
-} = req.body;
-
 const userId =
 	req.user._id;
 
-if (
-	!message ||
-	!message.trim()
-) {
-	return res.status(400).json({
-		error:
-			"Message cannot be empty",
-	});
-}
+const message =
+	typeof req.body.message ===
+	"string"
+		? req.body.message.trim()
+		: "";
 
 const existingMessage =
 	await Message.findById(
@@ -301,18 +308,49 @@ if (
 	});
 }
 
-if (
-	existingMessage.messageType !==
-	"text"
-) {
+if (req.file) {
+	existingMessage.fileUrl =
+		`${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
+
+	existingMessage.fileName =
+		req.file.originalname;
+
+	existingMessage.fileType =
+		req.file.mimetype;
+
+	if (
+		req.file.mimetype.startsWith(
+			"image/"
+		)
+	) {
+		existingMessage.messageType =
+			req.file.mimetype ===
+			"image/gif"
+				? "gif"
+				: "image";
+	} else {
+		existingMessage.messageType =
+			"file";
+	}
+}
+
+const hasAttachment =
+	existingMessage.messageType ===
+		"image" ||
+	existingMessage.messageType ===
+		"gif" ||
+	existingMessage.messageType ===
+		"file";
+
+if (!hasAttachment && !message) {
 	return res.status(400).json({
 		error:
-			"Only text messages can be edited",
+			"Message cannot be empty",
 	});
 }
 
 existingMessage.message =
-	message.trim();
+	message;
 
 existingMessage.edited =
 	true;
@@ -327,6 +365,9 @@ if (existingMessage.replyTo) {
 	});
 }
 
+const updatedMessage =
+	existingMessage.toObject();
+
 const receiverSocketId =
 	getReceiverSocketId(
 		existingMessage.receiverId.toString()
@@ -337,13 +378,13 @@ if (receiverSocketId) {
 		"messageEdited",
 		{
 			message:
-				existingMessage.toObject(),
+				updatedMessage,
 		}
 	);
 }
 
 res.status(200).json(
-	existingMessage
+	updatedMessage
 );
 } catch (error) {
 console.log(
@@ -357,7 +398,10 @@ res.status(500).json({
 }
 };
 
-export const deleteMessage = async (req, res) => {
+export const deleteMessage = async (
+req,
+res
+) => {
 try {
 const {
 	id: messageId,
@@ -433,4 +477,3 @@ res.status(500).json({
 });
 }
 };
-

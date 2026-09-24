@@ -25,7 +25,8 @@ import { useSocketContext } from "../../context/SocketContext";
 
 const MessageInput = () => {
 const [message, setMessage] = useState("");
-const [selectedFile, setSelectedFile] = useState(null);
+const [selectedFile, setSelectedFile] =
+useState(null);
 const [showEmojiPicker, setShowEmojiPicker] =
 useState(false);
 
@@ -49,10 +50,17 @@ const { socket } = useSocketContext();
 
 useEffect(() => {
 if (editingMessage) {
-setMessage(editingMessage.message);
+setMessage(
+editingMessage.message || ""
+);
+
 setSelectedFile(null);
 setReplyingTo(null);
 setShowEmojiPicker(false);
+
+if (fileInputRef.current) {
+fileInputRef.current.value = "";
+}
 }
 }, [
 editingMessage,
@@ -87,10 +95,13 @@ selectedConversation._id,
 typingTimeoutRef.current =
 setTimeout(() => {
 if (socket.connected) {
-socket.emit("stopTyping", {
+socket.emit(
+"stopTyping",
+{
 receiverId:
 selectedConversation._id,
-});
+}
+);
 }
 }, 1000);
 } else {
@@ -156,7 +167,10 @@ fileInputRef.current.value = "";
 };
 
 const handleEmojiSelect = (emoji) => {
-setMessage((prev) => prev + emoji);
+setMessage(
+(prev) => prev + emoji
+);
+
 setShowEmojiPicker(false);
 };
 
@@ -164,10 +178,7 @@ const handleSubmit = async (e) => {
 e.preventDefault();
 
 if (editingMessage) {
-if (!message.trim()) return;
-
 await handleEdit();
-
 return;
 }
 
@@ -213,32 +224,55 @@ error.message
 };
 
 const handleEdit = async () => {
+if (!editingMessage) return;
+
+if (
+!message.trim() &&
+!selectedFile &&
+!editingMessage.fileUrl
+) {
+return;
+}
+
 try {
 const token =
-localStorage.getItem("chat-token");
+localStorage.getItem(
+"chat-token"
+);
+
+const formData =
+new FormData();
+
+formData.append(
+"message",
+message.trim()
+);
+
+if (selectedFile) {
+formData.append(
+"file",
+selectedFile
+);
+}
 
 const res = await fetch(
 `${import.meta.env.VITE_API_URL}/api/messages/edit/${editingMessage._id}`,
 {
 method: "PUT",
 headers: {
-"Content-Type":
-"application/json",
 Authorization: `Bearer ${token}`,
 },
-body: JSON.stringify({
-message:
-message.trim(),
-}),
+body: formData,
 }
 );
 
 const data =
 await res.json();
 
-if (data.error) {
+if (!res.ok || data.error) {
 throw new Error(
-data.error
+data.error ||
+"Failed to edit message"
 );
 }
 
@@ -250,7 +284,12 @@ updateMessage(data);
 
 setEditingMessage(null);
 setMessage("");
+setSelectedFile(null);
 setShowEmojiPicker(false);
+
+if (fileInputRef.current) {
+fileInputRef.current.value = "";
+}
 
 if (typingTimeoutRef.current) {
 clearTimeout(
@@ -315,21 +354,51 @@ return (
 className="message-form"
 onSubmit={handleSubmit}
 >
-
 {editingMessage && (
 <div className="reply-preview edit-preview">
-
 <div className="reply-preview-content">
-
 <span className="reply-preview-label">
 <FiEdit2 />
 Editing message
 </span>
 
+{editingMessage.messageType ===
+"text" ? (
 <p>
 {editingMessage.message}
 </p>
+) : (
+<div className="edit-attachment-preview">
+{editingMessage.messageType ===
+"image" ||
+editingMessage.messageType ===
+"gif" ? (
+<img
+src={
+selectedFile
+? URL.createObjectURL(
+selectedFile
+)
+: editingMessage.fileUrl
+}
+alt={
+editingMessage.fileName ||
+"Attachment"
+}
+className="edit-image-preview"
+/>
+) : (
+<div className="edit-file-preview">
+<FiFile />
 
+<span>
+{selectedFile?.name ||
+editingMessage.fileName}
+</span>
+</div>
+)}
+</div>
+)}
 </div>
 
 <button
@@ -340,17 +409,12 @@ title="Cancel editing"
 >
 <FiX />
 </button>
-
 </div>
 )}
 
-
-{replyingTo &&
-!editingMessage && (
+{replyingTo && !editingMessage && (
 <div className="reply-preview">
-
 <div className="reply-preview-content">
-
 <span className="reply-preview-label">
 <FiCornerUpLeft />
 Replying to
@@ -358,9 +422,8 @@ Replying to
 
 <p>
 {replyingTo.message ||
-	"Attachment"}
+"Attachment"}
 </p>
-
 </div>
 
 <button
@@ -373,46 +436,36 @@ title="Cancel reply"
 >
 <FiX />
 </button>
-
 </div>
 )}
 
-
-{selectedFile &&
-!editingMessage && (
+{selectedFile && (
 <div className="file-preview">
-
 <div className="file-preview-info">
-
 <div className="file-preview-icon">
-
 {selectedFile.type.startsWith(
-	"image/"
+"image/"
 ) ? (
-	<FiImage />
+<FiImage />
 ) : (
-	<FiFile />
+<FiFile />
 )}
-
 </div>
 
 <div className="file-preview-details">
-
 <p>
-	{selectedFile.name}
+{selectedFile.name}
 </p>
 
 <span>
-	{(
-		selectedFile.size /
-		1024 /
-		1024
-	).toFixed(2)}{" "}
-	MB
+{(
+selectedFile.size /
+1024 /
+1024
+).toFixed(2)}{" "}
+MB
 </span>
-
 </div>
-
 </div>
 
 <button
@@ -425,10 +478,8 @@ title="Remove file"
 >
 <FiX />
 </button>
-
 </div>
 )}
-
 
 <input
 ref={fileInputRef}
@@ -437,21 +488,21 @@ hidden
 onChange={handleFileSelect}
 />
 
-
 <div className="composer">
-
 <button
 type="button"
 className="composer-icon"
-title="Attach file"
-disabled={!!editingMessage}
+title={
+editingMessage
+? "Replace attachment"
+: "Attach file"
+}
 onClick={() =>
 fileInputRef.current?.click()
 }
 >
 <FiPaperclip />
 </button>
-
 
 <input
 type="text"
@@ -469,9 +520,7 @@ autoFocus={
 }
 />
 
-
 <div className="emoji-picker-wrapper">
-
 <button
 type="button"
 className="composer-icon"
@@ -488,29 +537,25 @@ setShowEmojiPicker(
 
 {showEmojiPicker && (
 <div className="emoji-picker">
-
 {funEmojis.map(
 (emoji, index) => (
-	<button
-		key={index}
-		type="button"
-		className="emoji-option"
-		onClick={() =>
-			handleEmojiSelect(
-				emoji
-			)
-		}
-	>
-		{emoji}
-	</button>
+<button
+key={index}
+type="button"
+className="emoji-option"
+onClick={() =>
+handleEmojiSelect(
+emoji
+)
+}
+>
+{emoji}
+</button>
 )
 )}
-
 </div>
 )}
-
 </div>
-
 
 <button
 type="submit"
@@ -530,9 +575,7 @@ editingMessage
 <FiSend />
 )}
 </button>
-
 </div>
-
 </form>
 );
 };

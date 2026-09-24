@@ -11,7 +11,6 @@ FiEdit2,
 FiTrash2,
 FiFile,
 FiDownload,
-FiCheck,
 } from "react-icons/fi";
 
 const Message = ({ message }) => {
@@ -57,10 +56,6 @@ setReplyingTo(message);
 };
 
 const handleEdit = () => {
-if (message.messageType !== "text") {
-return;
-}
-
 setEditingMessage(message);
 };
 
@@ -205,16 +200,13 @@ selectedConversation?.fullName
 )}
 
 <div className="message-content">
-
 <div
 className={`message-bubble ${
 fromMe ? "sent" : "received"
 }`}
 >
-
 {message.replyTo && (
 <div className="replied-message">
-
 <div className="replied-message-header">
 <FiCornerUpLeft />
 
@@ -227,14 +219,12 @@ Replied message
 {message.replyTo.message ||
 "Attachment"}
 </p>
-
 </div>
 )}
 
 {renderMessageContent()}
 
 <div className="message-meta">
-
 <span className="message-time">
 {formattedTime}
 </span>
@@ -256,14 +246,10 @@ message.status === "read"
 {getMessageStatus()}
 </span>
 )}
-
 </div>
-
 </div>
-
 
 <div className="message-actions">
-
 <button
 type="button"
 className="reply-btn"
@@ -277,11 +263,8 @@ Reply
 </span>
 </button>
 
-
 {fromMe && (
 <>
-{message.messageType ===
-"text" && (
 <button
 type="button"
 className="edit-btn"
@@ -294,7 +277,6 @@ title="Edit message"
 Edit
 </span>
 </button>
-)}
 
 <button
 type="button"
@@ -310,23 +292,17 @@ Delete
 </button>
 </>
 )}
-
 </div>
-
 </div>
-
 
 {fromMe && (
 <div className="message-avatar">
-
 <img
 src={profilePic}
 alt="You"
 />
-
 </div>
 )}
-
 </div>
 );
 };

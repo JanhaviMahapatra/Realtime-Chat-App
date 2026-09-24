@@ -67,9 +67,6 @@ lastSeenUsers[selectedConversation._id] ||
 selectedConversation.lastSeen
 );
 
-/* -----------------------------
-FORMAT LAST SEEN
------------------------------ */
 
 const formatLastSeen = (lastSeen) => {
 if (!lastSeen) {

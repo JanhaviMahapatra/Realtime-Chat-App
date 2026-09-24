@@ -1,15 +1,78 @@
 import bcrypt from "bcryptjs";
+
 import User from "../models/user.model.js";
+import Conversation from "../models/conversation.model.js";
+import Message from "../models/message.model.js";
 
 export const getUsersForSidebar = async (req, res) => {
 try {
 const loggedInUserId = req.user._id;
 
-const filteredUsers = await User.find({
-_id: { $ne: loggedInUserId },
+const conversations =
+await Conversation.find({
+participants: loggedInUserId,
+})
+.sort({ updatedAt: -1 })
+.populate({
+	path: "participants",
+	select: "-password",
+});
+
+const conversationUsers = [];
+
+for (const conversation of conversations) {
+const otherUser =
+conversation.participants.find(
+	(participant) =>
+		participant._id.toString() !==
+		loggedInUserId.toString()
+);
+
+if (!otherUser) {
+continue;
+}
+
+const unreadCount =
+await Message.countDocuments({
+	senderId: otherUser._id,
+	receiverId: loggedInUserId,
+	status: {
+		$ne: "read",
+	},
+});
+
+conversationUsers.push({
+...otherUser.toObject(),
+conversationUpdatedAt:
+	conversation.updatedAt,
+unreadCount,
+});
+}
+
+const conversationUserIds =
+conversationUsers.map(
+(user) => user._id
+);
+
+const usersWithNoConversation =
+await User.find({
+_id: {
+	$ne: loggedInUserId,
+	$nin: conversationUserIds,
+},
 }).select("-password");
 
-res.status(200).json(filteredUsers);
+const allUsers = [
+...conversationUsers,
+...usersWithNoConversation.map(
+(user) => ({
+	...user.toObject(),
+	unreadCount: 0,
+})
+),
+];
+
+res.status(200).json(allUsers);
 } catch (error) {
 console.error(
 "Error in getUsersForSidebar:",
@@ -153,7 +216,9 @@ error:
 });
 }
 
-const user = await User.findById(req.user._id);
+const user = await User.findById(
+req.user._id
+);
 
 if (!user) {
 return res.status(404).json({

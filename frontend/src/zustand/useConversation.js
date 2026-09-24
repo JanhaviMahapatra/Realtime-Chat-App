@@ -4,8 +4,9 @@ const useConversation = create((set) => ({
 selectedConversation: null,
 
 setSelectedConversation: (selectedConversation) =>
-set({ selectedConversation }),
-
+set({
+selectedConversation,
+}),
 
 messages: [],
 
@@ -17,7 +18,38 @@ messages:
 		: messages,
 })),
 
-//Updates message status
+unreadCounts: {},
+
+setUnreadCount: (userId, count) =>
+set((state) => ({
+unreadCounts: {
+	...state.unreadCounts,
+	[userId]: count,
+},
+})),
+
+incrementUnreadCount: (userId) =>
+set((state) => ({
+unreadCounts: {
+	...state.unreadCounts,
+	[userId]:
+		(state.unreadCounts[userId] || 0) + 1,
+},
+})),
+
+clearUnreadCount: (userId) =>
+set((state) => {
+const updatedCounts = {
+	...state.unreadCounts,
+};
+
+delete updatedCounts[userId];
+
+return {
+	unreadCounts: updatedCounts,
+};
+}),
+
 updateMessageStatus: (messageId, status) =>
 set((state) => ({
 messages: state.messages.map((message) =>
@@ -27,7 +59,6 @@ messages: state.messages.map((message) =>
 ),
 })),
 
-//Updates an existing message
 updateMessage: (updatedMessage) =>
 set((state) => ({
 messages: state.messages.map((message) =>
@@ -37,7 +68,6 @@ messages: state.messages.map((message) =>
 ),
 })),
 
-//Removes a message
 removeMessage: (messageId) =>
 set((state) => ({
 messages: state.messages.filter(
@@ -45,17 +75,19 @@ messages: state.messages.filter(
 ),
 })),
 
-//Reply state
 replyingTo: null,
 
 setReplyingTo: (message) =>
-set({ replyingTo: message }),
+set({
+replyingTo: message,
+}),
 
-//Edit state
 editingMessage: null,
 
 setEditingMessage: (message) =>
-set({ editingMessage: message }),
+set({
+editingMessage: message,
+}),
 }));
 
 export default useConversation;

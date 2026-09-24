@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const useGetConversations = () => {
-const [loading, setLoading] = useState(false);
+const [loading, setLoading] =
+useState(false);
+
 const [conversations, setConversations] =
 useState([]);
 
@@ -20,7 +22,7 @@ const res = await fetch(
 `${import.meta.env.VITE_API_URL}/api/users`,
 {
 headers: {
-Authorization: `Bearer ${token}`,
+	Authorization: `Bearer ${token}`,
 },
 }
 );
@@ -61,6 +63,7 @@ getConversations();
 return {
 loading,
 conversations,
+setConversations,
 };
 };
 

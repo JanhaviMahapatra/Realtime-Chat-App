@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+
 import useConversation from "../zustand/useConversation";
 import useMarkMessagesAsRead from "./useMarkMessagesAsRead";
+
 import toast from "react-hot-toast";
 
 const useGetMessages = () => {
@@ -10,52 +12,68 @@ const {
 messages,
 setMessages,
 selectedConversation,
+clearUnreadCount,
 } = useConversation();
 
-const { markMessagesAsRead } = useMarkMessagesAsRead();
+const { markMessagesAsRead } =
+useMarkMessagesAsRead();
 
 useEffect(() => {
 const getMessages = async () => {
-	setLoading(true);
+setLoading(true);
 
-	try {
-		const token = localStorage.getItem("chat-token");
+try {
+const token =
+localStorage.getItem(
+	"chat-token"
+);
 
-		const res = await fetch(
-			`${import.meta.env.VITE_API_URL}/api/messages/${selectedConversation._id}`,
-			{
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			}
-		);
+const res = await fetch(
+`${import.meta.env.VITE_API_URL}/api/messages/${selectedConversation._id}`,
+{
+	headers: {
+		Authorization: `Bearer ${token}`,
+	},
+}
+);
 
-		const data = await res.json();
+const data = await res.json();
 
-		if (data.error) {
-			throw new Error(data.error);
-		}
+if (data.error) {
+throw new Error(
+	data.error
+);
+}
 
-		setMessages(data);
+setMessages(data);
 
-		// Mark messages from the selected user as read
-		await markMessagesAsRead(
-			selectedConversation._id
-		);
-	} catch (error) {
-		toast.error(error.message);
-	} finally {
-		setLoading(false);
-	}
+const success =
+await markMessagesAsRead(
+	selectedConversation._id
+);
+
+if (success) {
+clearUnreadCount(
+	selectedConversation._id
+);
+}
+} catch (error) {
+toast.error(
+error.message
+);
+} finally {
+setLoading(false);
+}
 };
 
 if (selectedConversation?._id) {
-	getMessages();
+getMessages();
 }
 }, [
 selectedConversation?._id,
 setMessages,
 markMessagesAsRead,
+clearUnreadCount,
 ]);
 
 return {

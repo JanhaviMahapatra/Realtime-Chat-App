@@ -16,6 +16,7 @@ lastIdx,
 const {
 selectedConversation,
 setSelectedConversation,
+clearUnreadCount,
 } = useConversation();
 
 const {
@@ -78,17 +79,16 @@ return `Last seen ${diffInDays}d ago`;
 return `Last seen ${lastSeenDate.toLocaleDateString()}`;
 };
 
-// Temporary UI data.
-// We will connect these to real message data later.
 const lastMessagePreview =
-conversation.lastMessagePreview ||
-"";
+conversation.lastMessagePreview || "";
 
 const lastMessageTime =
 conversation.lastMessageTime || "";
 
 const unreadCount =
-conversation.unreadCount || 0;
+useConversation.getState().unreadCounts[
+conversation._id
+] || 0;
 
 const isMuted =
 conversation.isMuted || false;
@@ -96,18 +96,20 @@ conversation.isMuted || false;
 const isLocked =
 conversation.isLocked || false;
 
+const handleConversationClick = () => {
+clearUnreadCount(conversation._id);
+setSelectedConversation(conversation);
+};
+
 return (
 <>
 <div
 className={`conversation-card ${
 isSelected ? "active" : ""
 }`}
-onClick={() =>
-setSelectedConversation(conversation)
-}
+onClick={handleConversationClick}
 >
 <div className="conversation-content">
-
 <div className="conversation-avatar-wrapper">
 <img
 src={conversation.profilePic}
@@ -121,9 +123,7 @@ className="conversation-avatar"
 </div>
 
 <div className="conversation-details">
-
 <div className="conversation-top-row">
-
 <h4>
 {conversation.fullName}
 </h4>
@@ -133,13 +133,10 @@ className="conversation-avatar"
 {lastMessageTime}
 </span>
 )}
-
 </div>
 
 <div className="conversation-bottom-row">
-
 <div className="conversation-preview">
-
 {isLocked && (
 <FiLock className="conversation-meta-icon" />
 )}
@@ -153,7 +150,9 @@ Online
 <FiClock className="conversation-meta-icon" />
 
 <span className="conversation-status-offline">
-  {formatLastSeen(lastSeen)}
+{formatLastSeen(
+lastSeen
+)}
 </span>
 </>
 )}
@@ -165,11 +164,9 @@ Online
 <span className="last-message-preview">
 {lastMessagePreview}
 </span>
-
 </div>
 
 <div className="conversation-meta">
-
 {isMuted && (
 <FiVolumeX className="muted-icon" />
 )}
@@ -177,17 +174,13 @@ Online
 {unreadCount > 0 && (
 <span className="unread-badge">
 {unreadCount > 99
-  ? "99+"
-  : unreadCount}
+? "99+"
+: unreadCount}
 </span>
 )}
-
 </div>
-
 </div>
-
 </div>
-
 </div>
 </div>
 
