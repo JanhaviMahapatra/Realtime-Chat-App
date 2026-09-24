@@ -5,6 +5,15 @@ import { extractTime } from "../../utils/extractTime";
 import useConversation from "../../zustand/useConversation";
 import toast from "react-hot-toast";
 
+import {
+FiCornerUpLeft,
+FiEdit2,
+FiTrash2,
+FiFile,
+FiDownload,
+FiCheck,
+} from "react-icons/fi";
+
 const Message = ({ message }) => {
 const { authUser } = useAuthContext();
 
@@ -56,61 +65,68 @@ setEditingMessage(message);
 };
 
 const handleDelete = () => {
-	toast(
-		(t) => (
-			<div className="delete-confirm-toast">
-				<p>Are you sure you want to delete this message?</p>
+toast(
+(t) => (
+<div className="delete-confirm-toast">
+<p>
+Are you sure you want to delete this message?
+</p>
 
-				<div className="delete-confirm-actions">
-					<button
-						onClick={() => {
-							toast.dismiss(t.id);
-							confirmDelete();
-						}}
-					>
-						Delete
-					</button>
+<div className="delete-confirm-actions">
+<button
+type="button"
+onClick={() => {
+toast.dismiss(t.id);
+confirmDelete();
+}}
+>
+Delete
+</button>
 
-					<button
-						onClick={() => toast.dismiss(t.id)}
-					>
-						Cancel
-					</button>
-				</div>
-			</div>
-		),
-		{
-			duration: 5000,
-		}
-	);
+<button
+type="button"
+onClick={() =>
+toast.dismiss(t.id)
+}
+>
+Cancel
+</button>
+</div>
+</div>
+),
+{
+duration: 5000,
+}
+);
 };
 
 const confirmDelete = async () => {
-	try {
-		const token = localStorage.getItem("chat-token");
+try {
+const token =
+localStorage.getItem("chat-token");
 
-		const res = await fetch(
-			`${import.meta.env.VITE_API_URL}/api/messages/delete/${message._id}`,
-			{
-				method: "DELETE",
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			}
-		);
+const res = await fetch(
+`${import.meta.env.VITE_API_URL}/api/messages/delete/${message._id}`,
+{
+method: "DELETE",
+headers: {
+Authorization: `Bearer ${token}`,
+},
+}
+);
 
-		const data = await res.json();
+const data = await res.json();
 
-		if (data.error) {
-			throw new Error(data.error);
-		}
+if (data.error) {
+throw new Error(data.error);
+}
 
-		removeMessage(message._id);
+removeMessage(message._id);
 
-		toast.success("Message deleted");
-	} catch (error) {
-		toast.error(error.message);
-	}
+toast.success("Message deleted");
+} catch (error) {
+toast.error(error.message);
+}
 };
 
 const renderMessageContent = () => {
@@ -119,145 +135,198 @@ message.messageType === "image" ||
 message.messageType === "gif"
 ) {
 return (
-	<img
-		src={message.fileUrl}
-		alt={message.fileName || "Image"}
-		className="message-image"
-	/>
+<div className="message-media">
+<img
+src={message.fileUrl}
+alt={
+message.fileName || "Image"
+}
+className="message-image"
+/>
+
+{message.message && (
+<p className="media-caption">
+{message.message}
+</p>
+)}
+</div>
 );
 }
 
 if (message.messageType === "file") {
 return (
-	<a
-		href={message.fileUrl}
-		target="_blank"
-		rel="noopener noreferrer"
-		className="message-file"
-	>
-		<span className="message-file-icon">
-			📄
-		</span>
+<a
+href={message.fileUrl}
+target="_blank"
+rel="noopener noreferrer"
+className="message-file"
+>
+<div className="message-file-icon">
+<FiFile />
+</div>
 
-		<span className="message-file-info">
-			<span className="message-file-name">
-				{message.fileName}
-			</span>
+<div className="message-file-info">
+<span className="message-file-name">
+{message.fileName}
+</span>
 
-			<span className="message-file-type">
-				{message.fileType}
-			</span>
-		</span>
-	</a>
+<span className="message-file-type">
+{message.fileType}
+</span>
+</div>
+
+<FiDownload className="message-file-download" />
+</a>
 );
 }
 
-return <p>{message.message}</p>;
+return (
+<p className="message-text">
+{message.message}
+</p>
+);
 };
 
 return (
 <div
 className={`message-row ${
-	fromMe ? "outgoing" : "incoming"
+fromMe ? "outgoing" : "incoming"
 } ${shakeClass}`}
 >
 {!fromMe && (
-	<div className="message-avatar">
-		<img
-			src={profilePic}
-			alt={
-				selectedConversation?.fullName
-			}
-		/>
-	</div>
+<div className="message-avatar">
+<img
+src={profilePic}
+alt={
+selectedConversation?.fullName
+}
+/>
+</div>
 )}
 
 <div className="message-content">
-	<div
-		className={`message-bubble ${
-			fromMe ? "sent" : "received"
-		}`}
-	>
-		{message.replyTo && (
-			<div className="replied-message">
-				<div className="replied-message-label">
-					↩ Replied to
-				</div>
 
-				<p>
-					{message.replyTo.message ||
-						"Attachment"}
-				</p>
-			</div>
-		)}
+<div
+className={`message-bubble ${
+fromMe ? "sent" : "received"
+}`}
+>
 
-		{renderMessageContent()}
+{message.replyTo && (
+<div className="replied-message">
 
-		<div className="message-meta">
-			<span>{formattedTime}</span>
+<div className="replied-message-header">
+<FiCornerUpLeft />
 
-			{message.edited && (
-				<span className="edited-label">
-					edited
-				</span>
-			)}
-
-			{fromMe && (
-				<span
-					className={`message-status ${
-						message.status === "read"
-							? "read"
-							: ""
-					}`}
-				>
-					{getMessageStatus()}
-				</span>
-			)}
-		</div>
-	</div>
-
-	<div className="message-actions">
-		<button
-			type="button"
-			className="reply-btn"
-			onClick={handleReply}
-		>
-			Reply
-		</button>
-
-		{fromMe && (
-			<>
-				{message.messageType ===
-					"text" && (
-					<button
-						type="button"
-						className="edit-btn"
-						onClick={handleEdit}
-					>
-						Edit
-					</button>
-				)}
-
-				<button
-					type="button"
-					className="delete-btn"
-					onClick={handleDelete}
-				>
-					Delete
-				</button>
-			</>
-		)}
-	</div>
+<span>
+Replied message
+</span>
 </div>
 
-{fromMe && (
-	<div className="message-avatar">
-		<img
-			src={profilePic}
-			alt="You"
-		/>
-	</div>
+<p>
+{message.replyTo.message ||
+"Attachment"}
+</p>
+
+</div>
 )}
+
+{renderMessageContent()}
+
+<div className="message-meta">
+
+<span className="message-time">
+{formattedTime}
+</span>
+
+{message.edited && (
+<span className="edited-label">
+edited
+</span>
+)}
+
+{fromMe && (
+<span
+className={`message-status ${
+message.status === "read"
+? "read"
+: ""
+}`}
+>
+{getMessageStatus()}
+</span>
+)}
+
+</div>
+
+</div>
+
+
+<div className="message-actions">
+
+<button
+type="button"
+className="reply-btn"
+onClick={handleReply}
+title="Reply"
+>
+<FiCornerUpLeft />
+
+<span>
+Reply
+</span>
+</button>
+
+
+{fromMe && (
+<>
+{message.messageType ===
+"text" && (
+<button
+type="button"
+className="edit-btn"
+onClick={handleEdit}
+title="Edit message"
+>
+<FiEdit2 />
+
+<span>
+Edit
+</span>
+</button>
+)}
+
+<button
+type="button"
+className="delete-btn"
+onClick={handleDelete}
+title="Delete message"
+>
+<FiTrash2 />
+
+<span>
+Delete
+</span>
+</button>
+</>
+)}
+
+</div>
+
+</div>
+
+
+{fromMe && (
+<div className="message-avatar">
+
+<img
+src={profilePic}
+alt="You"
+/>
+
+</div>
+)}
+
 </div>
 );
 };

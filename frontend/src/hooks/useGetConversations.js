@@ -3,41 +3,65 @@ import toast from "react-hot-toast";
 
 const useGetConversations = () => {
 const [loading, setLoading] = useState(false);
-const [conversations, setConversations] = useState([]);
+const [conversations, setConversations] =
+useState([]);
 
 useEffect(() => {
 const getConversations = async () => {
-	setLoading(true);
-	try {
-		const token = localStorage.getItem("chat-token");
+setLoading(true);
 
-		const res = await fetch(
-			`${import.meta.env.VITE_API_URL}/api/users`,
-			{
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			}
-		);
+try {
+const token =
+localStorage.getItem(
+"chat-token"
+);
 
-		const data = await res.json();
+const res = await fetch(
+`${import.meta.env.VITE_API_URL}/api/users`,
+{
+headers: {
+Authorization: `Bearer ${token}`,
+},
+}
+);
 
-		if (data.error) {
-			throw new Error(data.error);
-		}
+const data =
+await res.json();
 
-		setConversations(data);
-	} catch (error) {
-		toast.error(error.message);
-	} finally {
-		setLoading(false);
-	}
+if (data.error) {
+throw new Error(
+data.error
+);
+}
+
+setConversations(
+Array.isArray(data)
+? data
+: []
+);
+} catch (error) {
+console.error(
+"Error fetching conversations:",
+error.message
+);
+
+setConversations([]);
+
+toast.error(
+error.message
+);
+} finally {
+setLoading(false);
+}
 };
 
 getConversations();
 }, []);
 
-return { loading, conversations };
+return {
+loading,
+conversations,
+};
 };
 
 export default useGetConversations;

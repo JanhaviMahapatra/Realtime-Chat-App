@@ -6,16 +6,9 @@ import toast from "react-hot-toast";
 const useSendMessage = () => {
 const [loading, setLoading] = useState(false);
 
-const {
-setMessages,
-selectedConversation,
-replyingTo,
-} = useConversation();
+const {setMessages, selectedConversation, replyingTo,} = useConversation();
 
-const sendMessage = async (
-message = "",
-file = null
-) => {
+const sendMessage = async ( message = "",file = null) => {
 if (!selectedConversation?._id) {
   return;
 }
@@ -24,8 +17,8 @@ setLoading(true);
 
 try {
   const formData = new FormData();
-
-  // Add text message if available
+ 
+  //Add text message if available
   if (message.trim()) {
     formData.append(
       "message",
@@ -34,7 +27,7 @@ try {
   }
 
   // Add file/image/GIF if available
-  if (file) {
+  if(file) {
     formData.append(
       "file",
       file
@@ -68,7 +61,7 @@ try {
     throw new Error(data.error);
   }
 
-  // Add new message to current chat
+  //Adding new message to current chat
   setMessages((currentMessages) => [
     ...currentMessages,
     data,

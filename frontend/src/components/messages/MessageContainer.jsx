@@ -1,11 +1,19 @@
 import "../../style/MessageContainer.css";
 
 import { useEffect, useState } from "react";
-import { TiMessages } from "react-icons/ti";
+
+import {
+TiMessages,
+} from "react-icons/ti";
+
 import {
 FiSearch,
-FiMoreVertical,
 FiX,
+FiArrowLeft,
+FiPhone,
+FiVideo,
+FiMoreVertical,
+FiLock,
 } from "react-icons/fi";
 
 import useConversation from "../../zustand/useConversation";
@@ -21,14 +29,14 @@ selectedConversation,
 setSelectedConversation,
 } = useConversation();
 
-const [searchOpen, setSearchOpen] =
-useState(false);
+const [searchOpen, setSearchOpen] = useState(false);
 
-const [searchQuery, setSearchQuery] =
-useState("");
+const [searchQuery, setSearchQuery] = useState("");
 
-const [selectedSearchMessage, setSelectedSearchMessage] =
-useState(null);
+const [
+selectedSearchMessage,
+setSelectedSearchMessage,
+] = useState(null);
 
 const {
 onlineUsers,
@@ -40,6 +48,10 @@ useEffect(() => {
 return () => setSelectedConversation(null);
 }, [setSelectedConversation]);
 
+/* -----------------------------
+USER STATUS
+----------------------------- */
+
 const isOnline = selectedConversation
 ? onlineUsers.includes(selectedConversation._id)
 : false;
@@ -50,8 +62,14 @@ const isTyping = selectedConversation
 
 const lastSeen =
 selectedConversation &&
-(lastSeenUsers[selectedConversation._id] ||
-selectedConversation.lastSeen);
+(
+lastSeenUsers[selectedConversation._id] ||
+selectedConversation.lastSeen
+);
+
+/* -----------------------------
+FORMAT LAST SEEN
+----------------------------- */
 
 const formatLastSeen = (lastSeen) => {
 if (!lastSeen) {
@@ -91,30 +109,58 @@ return `Last seen yesterday at ${time}`;
 return `Last seen on ${date.toLocaleDateString()} at ${time}`;
 };
 
+/* -----------------------------
+SEARCH
+----------------------------- */
+
 const handleSearchToggle = () => {
 setSearchOpen((prev) => !prev);
 setSearchQuery("");
 setSelectedSearchMessage(null);
 };
 
+/* -----------------------------
+BACK
+----------------------------- */
+
+const handleBack = () => {
+setSearchOpen(false);
+setSearchQuery("");
+setSelectedSearchMessage(null);
+setSelectedConversation(null);
+};
+
 return (
 <div className="message-container">
+
 {!selectedConversation ? (
 <NoChatSelected />
 ) : (
 <>
+{/* =================================
+CHAT HEADER
+================================= */}
+
 <header className="chat-header">
+
 {searchOpen ? (
+
+/* -----------------------------
+MESSAGE SEARCH HEADER
+----------------------------- */
+
 <div className="chat-search">
 
 <button
 type="button"
 className="chat-search-close"
 onClick={handleSearchToggle}
+title="Close search"
 >
 <FiX />
 </button>
 
+<div className="chat-search-input-wrapper">
 <FiSearch />
 
 <input
@@ -126,12 +172,36 @@ setSearchQuery(e.target.value)
 }
 autoFocus
 />
+</div>
 
 </div>
+
 ) : (
+
+/* -----------------------------
+NORMAL CHAT HEADER
+----------------------------- */
+
 <>
+
+{/* Mobile Back Button */}
+
+<button
+type="button"
+className="mobile-back-btn"
+onClick={handleBack}
+title="Back to conversations"
+>
+<FiArrowLeft />
+</button>
+
+
+{/* User Information */}
+
 <div className="chat-user">
+
 <div className="chat-avatar">
+
 <img
 src={selectedConversation.profilePic}
 alt={selectedConversation.fullName}
@@ -140,12 +210,21 @@ alt={selectedConversation.fullName}
 {isOnline && (
 <span className="online-dot"></span>
 )}
+
 </div>
 
+
 <div className="chat-user-info">
+
+<div className="chat-user-name-row">
+
 <h3>
 {selectedConversation.fullName}
 </h3>
+
+
+</div>
+
 
 <p
 className={
@@ -162,10 +241,17 @@ isTyping
 ? "Online"
 : formatLastSeen(lastSeen)}
 </p>
-</div>
+
 </div>
 
+</div>
+
+
+{/* Header Actions */}
+
 <div className="chat-actions">
+
+{/* Search */}
 
 <button
 type="button"
@@ -175,10 +261,77 @@ title="Search messages"
 <FiSearch />
 </button>
 
+
+{/* Voice Call - UI ONLY */}
+
+<button
+type="button"
+title="Voice call"
+className="header-action-desktop"
+>
+<FiPhone />
+</button>
+
+
+{/* Video Call - UI ONLY */}
+
+<button
+type="button"
+title="Video call"
+className="header-action-desktop"
+>
+<FiVideo />
+</button>
+
+
+{/* More Options - UI ONLY */}
+
+<button
+type="button"
+title="More options"
+className="header-more-btn"
+>
+<FiMoreVertical />
+</button>
+
 </div>
+
 </>
+
 )}
+
 </header>
+
+
+{/* =================================
+CONVERSATION CONTEXT
+================================= */}
+
+<div className="conversation-context">
+
+<div className="context-icon">
+<FiLock />
+</div>
+
+<div className="context-content">
+
+<span className="context-title">
+End-to-end encrypted
+</span>
+
+<span className="context-text">
+Messages are secured between you and{" "}
+{selectedConversation.fullName}.
+</span>
+
+</div>
+
+</div>
+
+
+{/* =================================
+MESSAGES
+================================= */}
 
 <Messages
 searchQuery={searchQuery}
@@ -188,32 +341,68 @@ setSelectedSearchMessage
 }
 />
 
+
+{/* =================================
+MESSAGE INPUT
+================================= */}
+
 <MessageInput />
+
 </>
 )}
+
 </div>
 );
 };
 
+
+/* =========================================
+NO CHAT SELECTED
+========================================= */
+
 const NoChatSelected = () => {
+
 const { authUser } = useAuthContext();
 
 return (
 <div className="empty-chat">
+
 <div className="empty-card">
+
+{/* Icon */}
+
 <div className="empty-icon">
 <TiMessages />
 </div>
+
+
+{/* Heading */}
 
 <h2>
 Welcome back, {authUser.fullName}
 </h2>
 
+
+{/* Description */}
+
 <p>
-Choose a conversation from the sidebar and
-start messaging instantly.
+Choose a conversation from the sidebar
+and start messaging instantly.
 </p>
+
+
+<div className="empty-security">
+
+<FiLock />
+
+<span>
+Your conversations are private and secure.
+</span>
+
 </div>
+
+</div>
+
 </div>
 );
 };

@@ -1,84 +1,611 @@
-.signup-btn {
-	width: 100%;
-	height: 52px;
+.auth-page {
+width: 100%;
+min-height: 100vh;
 
-	display: flex;
-	align-items: center;
-	justify-content: center;
+display: flex;
+align-items: center;
+justify-content: center;
 
-	margin-top: 10px;
+padding: 30px;
 
-	border: none;
-	border-radius: 14px;
+background:
+radial-gradient(
+	circle at 15% 20%,
+	rgba(112, 75, 53, 0.18),
+	transparent 32%
+),
+radial-gradient(
+	circle at 85% 80%,
+	rgba(137, 93, 62, 0.12),
+	transparent 30%
+),
+#17110e;
 
-	background: #4f8cff;
-
-	color: #fff;
-
-	font-size: 15px;
-	font-weight: 600;
-
-	cursor: pointer;
-
-	box-shadow: 0 8px 20px rgba(79, 140, 255, 0.25);
-
-	transition: all 0.25s ease;
+color: #f1e5d8;
 }
 
-.signup-btn:hover:not(:disabled) {
-	background: #3d7fff;
-	box-shadow: 0 12px 28px rgba(79, 140, 255, 0.35);
-	transform: translateY(-2px);
+.auth-layout {
+width: 100%;
+max-width: 980px;
+
+min-height: 610px;
+
+display: grid;
+grid-template-columns: 1fr 0.9fr;
+
+overflow: hidden;
+
+background: #1e1511;
+
+border: 1px solid #3d2b22;
+border-radius: 22px;
+
+box-shadow:
+0 30px 80px rgba(0, 0, 0, 0.45),
+0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
-.signup-btn:active:not(:disabled) {
-	transform: translateY(0);
+.auth-banner {
+position: relative;
+
+display: flex;
+align-items: center;
+
+padding: 55px;
+
+background:
+radial-gradient(
+	circle at 20% 15%,
+	rgba(185, 130, 82, 0.18),
+	transparent 30%
+),
+linear-gradient(
+	145deg,
+	#241a15,
+	#1d1511
+);
+
+border-right: 1px solid #3a2921;
+
+overflow: hidden;
 }
 
-.signup-btn:disabled {
-	background: #3f4f68;
-	color: #b5c0d0;
-	cursor: not-allowed;
-	box-shadow: none;
-	opacity: 0.8;
+.auth-banner::before {
+content: "";
+
+position: absolute;
+
+width: 280px;
+height: 280px;
+
+right: -120px;
+top: -100px;
+
+border-radius: 50%;
+
+border: 1px solid rgba(185, 130, 82, 0.12);
+}
+
+.auth-banner::after {
+content: "";
+
+position: absolute;
+
+width: 200px;
+height: 200px;
+
+left: -100px;
+bottom: -100px;
+
+border-radius: 50%;
+
+background: rgba(112, 75, 53, 0.08);
+}
+
+.banner-content {
+position: relative;
+z-index: 1;
+
+max-width: 450px;
+}
+
+.logo {
+width: 54px;
+height: 54px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+margin-bottom: 28px;
+
+border-radius: 16px;
+
+background: #704b35;
+
+border: 1px solid #8a6042;
+
+color: #fff1e5;
+
+font-size: 25px;
+
+box-shadow:
+0 12px 25px rgba(67, 42, 28, 0.3);
+}
+
+.logo svg {
+width: 25px;
+height: 25px;
+}
+
+.banner-content h1 {
+margin: 0 0 14px;
+
+font-size: 42px;
+line-height: 1.1;
+font-weight: 700;
+
+letter-spacing: -1px;
+
+color: #f4e9dc;
+}
+
+.banner-content > p {
+max-width: 410px;
+
+margin: 0;
+
+color: #a18e7e;
+
+font-size: 15px;
+line-height: 1.7;
+}
+
+.banner-features {
+display: flex;
+flex-direction: column;
+
+gap: 20px;
+
+margin-top: 40px;
+}
+
+.feature {
+display: flex;
+align-items: center;
+
+gap: 13px;
+}
+
+.feature-icon {
+width: 38px;
+height: 38px;
+
+flex-shrink: 0;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 10px;
+
+background: #2d211a;
+
+border: 1px solid #493329;
+
+color: #c49368;
+
+font-size: 17px;
+}
+
+.feature-icon svg {
+width: 17px;
+height: 17px;
+}
+
+.feature h4 {
+margin: 0 0 3px;
+
+color: #e6d7ca;
+
+font-size: 12px;
+font-weight: 600;
+}
+
+.feature p {
+margin: 0;
+
+color: #806e61;
+
+font-size: 10px;
+}
+
+.auth-card {
+display: flex;
+flex-direction: column;
+justify-content: center;
+
+padding: 45px 50px;
+
+background: #211813;
+}
+
+.signup-card {
+overflow-y: auto;
+}
+
+.card-header {
+margin-bottom: 25px;
+}
+
+.card-eyebrow {
+display: block;
+
+margin-bottom: 9px;
+
+color: #b98252;
+
+font-size: 9px;
+font-weight: 700;
+
+letter-spacing: 1.8px;
+}
+
+.card-header h2 {
+margin: 0 0 7px;
+
+color: #f3e6d9;
+
+font-size: 28px;
+font-weight: 700;
+}
+
+.card-header p {
+margin: 0;
+
+color: #8f7b6c;
+
+font-size: 12px;
+line-height: 1.5;
+}
+
+.signup-form {
+width: 100%;
+}
+
+.form-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+
+gap: 14px 10px;
+
+margin-bottom: 18px;
+}
+
+.form-group {
+display: flex;
+flex-direction: column;
+
+gap: 7px;
+}
+
+.form-group label,
+.gender-label {
+color: #c8b5a5;
+
+font-size: 11px;
+font-weight: 600;
+}
+
+.form-group input {
+width: 100%;
+height: 42px;
+
+box-sizing: border-box;
+
+padding: 0 12px;
+
+border: 1px solid #463127;
+border-radius: 10px;
+
+outline: none;
+
+background: #241a15;
+
+color: #f1e5d8;
+
+font-size: 11px;
+
+transition:
+border-color 0.2s ease,
+background 0.2s ease,
+box-shadow 0.2s ease;
+}
+
+.form-group input::placeholder {
+color: #766458;
+}
+
+.form-group input:focus {
+background: #2a1e18;
+
+border-color: #80583d;
+
+box-shadow:
+0 0 0 3px rgba(168, 117, 77, 0.08);
 }
 
 .password-wrapper {
-	position: relative;
-	width: 100%;
+position: relative;
 }
 
 .password-wrapper input {
-	width: 100%;
-	padding-right: 45px;
+padding-right: 42px;
 }
 
 .password-toggle {
-	position: absolute;
-	top: 50%;
-	right: 12px;
+position: absolute;
 
-	display: flex;
-	align-items: center;
-	justify-content: center;
+right: 5px;
+top: 50%;
 
-	transform: translateY(-50%);
+width: 32px;
+height: 32px;
 
-	background: transparent;
-	border: none;
-	padding: 4px;
+display: flex;
+align-items: center;
+justify-content: center;
 
-	color: #7f8a99;
-	font-size: 19px;
+transform: translateY(-50%);
 
-	cursor: pointer;
-	transition: .2s ease;
+border: none;
+border-radius: 8px;
+
+background: transparent;
+
+color: #897568;
+
+cursor: pointer;
+
+transition:
+background 0.2s ease,
+color 0.2s ease;
 }
 
 .password-toggle:hover {
-	color: #4f8cff;
+background: #35261e;
+
+color: #c99a6b;
 }
 
-.password-toggle:active {
-	transform: translateY(-50%) scale(.9);
+.password-toggle svg {
+width: 16px;
+height: 16px;
+}
+
+.gender-section {
+display: flex;
+flex-direction: column;
+
+gap: 8px;
+
+margin-bottom: 18px;
+}
+
+.signup-btn {
+width: 100%;
+height: 43px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border: 1px solid #8a6042;
+border-radius: 10px;
+
+background: #704b35;
+
+color: #fff3e7;
+
+font-size: 12px;
+font-weight: 600;
+
+cursor: pointer;
+
+box-shadow:
+0 8px 18px rgba(67, 42, 28, 0.25);
+
+transition:
+background 0.2s ease,
+transform 0.15s ease,
+box-shadow 0.2s ease;
+}
+
+.signup-btn:hover:not(:disabled) {
+background: #80583d;
+
+box-shadow:
+0 10px 22px rgba(67, 42, 28, 0.35);
+
+transform: translateY(-1px);
+}
+
+.signup-btn:active:not(:disabled) {
+transform: scale(0.98);
+}
+
+.signup-btn:disabled {
+opacity: 0.65;
+
+cursor: not-allowed;
+}
+
+.spinner {
+width: 17px;
+height: 17px;
+
+border: 2px solid rgba(255, 243, 231, 0.3);
+border-top-color: #fff3e7;
+
+border-radius: 50%;
+
+animation: signupSpin 0.7s linear infinite;
+}
+
+@keyframes signupSpin {
+to {
+transform: rotate(360deg);
+}
+}
+
+.auth-footer {
+display: flex;
+align-items: center;
+justify-content: center;
+
+gap: 5px;
+
+margin-top: 19px;
+
+font-size: 11px;
+}
+
+.auth-footer span {
+color: #806e61;
+}
+
+.auth-footer a {
+color: #c49368;
+
+font-weight: 600;
+
+text-decoration: none;
+
+transition: color 0.2s ease;
+}
+
+.auth-footer a:hover {
+color: #d5aa82;
+text-decoration: underline;
+}
+
+@media (max-width: 850px) {
+.auth-page {
+padding: 20px;
+}
+
+.auth-layout {
+grid-template-columns: 0.9fr 1fr;
+}
+
+.auth-banner {
+padding: 40px;
+}
+
+.auth-card {
+padding: 35px;
+}
+
+.banner-content h1 {
+font-size: 34px;
+}
+}
+
+@media (max-width: 700px) {
+.auth-layout {
+max-width: 470px;
+
+min-height: auto;
+
+grid-template-columns: 1fr;
+}
+
+.auth-banner {
+padding: 35px;
+
+border-right: none;
+border-bottom: 1px solid #3a2921;
+}
+
+.banner-content {
+max-width: none;
+}
+
+.banner-content h1 {
+font-size: 32px;
+}
+
+.banner-features {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+
+gap: 10px;
+
+margin-top: 28px;
+}
+
+.feature {
+flex-direction: column;
+
+align-items: flex-start;
+
+gap: 8px;
+}
+
+.feature p {
+display: none;
+}
+
+.auth-card {
+padding: 35px;
+}
+}
+
+@media (max-width: 500px) {
+.auth-page {
+padding: 12px;
+}
+
+.auth-layout {
+border-radius: 16px;
+}
+
+.auth-banner {
+padding: 28px 24px;
+}
+
+.logo {
+width: 46px;
+height: 46px;
+
+margin-bottom: 20px;
+
+border-radius: 13px;
+}
+
+.banner-content h1 {
+font-size: 27px;
+}
+
+.banner-content > p {
+font-size: 13px;
+}
+
+.banner-features {
+display: none;
+}
+
+.auth-card {
+padding: 30px 24px;
+}
+
+.form-grid {
+grid-template-columns: 1fr;
+
+gap: 14px;
+}
+
+.card-header h2 {
+font-size: 25px;
+}
 }

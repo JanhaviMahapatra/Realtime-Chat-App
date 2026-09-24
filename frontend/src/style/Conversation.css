@@ -1,28 +1,329 @@
-.conversation-status {
-	display: flex;
-	align-items: center;
-	gap: 6px;
+.conversation-card {
+width: 100%;
+padding: 13px 14px;
+
+background: transparent;
+
+border: 1px solid transparent;
+border-radius: 14px;
+
+cursor: pointer;
+
+transition:
+background 0.2s ease,
+border-color 0.2s ease,
+transform 0.15s ease;
+}
+
+.conversation-card:hover {
+background: #241a15;
+border-color: #30221c;
+}
+
+.conversation-card.active {
+background: #2a1e18;
+border-color: #463127;
+}
+
+.conversation-card:active {
+transform: scale(0.99);
+}
+
+.conversation-content {
+width: 100%;
+
+display: flex;
+align-items: center;
+
+gap: 12px;
+
+min-width: 0;
+}
+
+.conversation-avatar-wrapper {
+position: relative;
+
+width: 48px;
+height: 48px;
+
+flex-shrink: 0;
+}
+
+.conversation-avatar {
+width: 48px;
+height: 48px;
+
+display: block;
+
+object-fit: cover;
+
+border-radius: 50%;
+
+border: 1px solid #4b3529;
+
+background: #30221c;
 }
 
 .status-indicator {
-	width: 8px;
-	height: 8px;
+position: absolute;
 
-	background: #22c55e;
-	border-radius: 50%;
+right: 0;
+bottom: 1px;
 
-	flex-shrink: 0;
+width: 11px;
+height: 11px;
+
+border-radius: 50%;
+
+background: #72a66d;
+
+border: 2px solid #211813;
 }
 
-.status-text {
-	font-size: 12px;
-	font-weight: 500;
+.conversation-details {
+flex: 1;
+
+min-width: 0;
+
+display: flex;
+flex-direction: column;
+
+gap: 5px;
 }
 
-.status-text.online {
-	color: #22c55e;
+.conversation-top-row {
+width: 100%;
+
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+gap: 10px;
+
+min-width: 0;
 }
 
-.status-text.offline {
-	color: #7f8a99;
+.conversation-top-row h4 {
+margin: 0;
+
+min-width: 0;
+
+overflow: hidden;
+
+font-size: 14px;
+font-weight: 600;
+
+color: #f1e5d8;
+
+white-space: nowrap;
+text-overflow: ellipsis;
+}
+
+.conversation-time {
+flex-shrink: 0;
+
+font-size: 10px;
+
+color: #806e61;
+}
+
+.conversation-bottom-row {
+width: 100%;
+
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+gap: 8px;
+
+min-width: 0;
+}
+
+.conversation-preview {
+flex: 1;
+
+min-width: 0;
+
+display: flex;
+align-items: center;
+
+gap: 5px;
+
+overflow: hidden;
+}
+
+.conversation-status-online,
+.conversation-status-offline {
+flex-shrink: 0;
+
+font-size: 10px;
+
+white-space: nowrap;
+}
+
+.conversation-status-online {
+color: #82a97d;
+}
+
+.conversation-status-offline {
+color: #8f7b6c;
+}
+
+.conversation-meta-icon {
+width: 11px;
+height: 11px;
+
+flex-shrink: 0;
+
+color: #806e61;
+}
+
+.conversation-preview-separator {
+flex-shrink: 0;
+
+color: #665448;
+
+font-size: 12px;
+}
+
+.last-message-preview {
+min-width: 0;
+
+overflow: hidden;
+
+font-size: 11px;
+
+color: #9a8778;
+
+white-space: nowrap;
+text-overflow: ellipsis;
+}
+
+.conversation-meta {
+flex-shrink: 0;
+
+display: flex;
+align-items: center;
+
+gap: 7px;
+}
+
+.muted-icon {
+width: 13px;
+height: 13px;
+
+color: #806e61;
+}
+
+.unread-badge {
+min-width: 19px;
+height: 19px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+padding: 0 5px;
+
+border-radius: 999px;
+
+background: #a8754d;
+
+color: #fff4e9;
+
+font-size: 9px;
+font-weight: 700;
+}
+
+.conversation-divider {
+height: 1px;
+
+margin: 0 14px;
+
+background: #2c211b;
+}
+
+@media (max-width: 850px) {
+.conversation-card {
+padding: 12px;
+}
+
+.conversation-avatar-wrapper,
+.conversation-avatar {
+width: 46px;
+height: 46px;
+}
+}
+
+@media (max-width: 600px) {
+.conversation-card {
+padding: 11px 10px;
+
+border-radius: 12px;
+}
+
+.conversation-content {
+gap: 10px;
+}
+
+.conversation-avatar-wrapper,
+.conversation-avatar {
+width: 44px;
+height: 44px;
+}
+
+.status-indicator {
+width: 10px;
+height: 10px;
+}
+
+.conversation-top-row h4 {
+font-size: 13px;
+}
+
+.conversation-time {
+font-size: 9px;
+}
+
+.conversation-status-online,
+.conversation-status-offline,
+.last-message-preview {
+font-size: 9px;
+}
+
+.conversation-preview {
+gap: 4px;
+}
+
+.conversation-meta-icon {
+width: 10px;
+height: 10px;
+}
+
+.unread-badge {
+min-width: 18px;
+height: 18px;
+
+font-size: 8px;
+}
+
+.conversation-divider {
+margin: 0 10px;
+}
+}
+
+@media (max-width: 380px) {
+.conversation-card {
+padding: 10px 8px;
+}
+
+.conversation-avatar-wrapper,
+.conversation-avatar {
+width: 42px;
+height: 42px;
+}
+
+.last-message-preview {
+max-width: 90px;
+}
 }

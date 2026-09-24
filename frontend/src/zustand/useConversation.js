@@ -1,13 +1,12 @@
 import { create } from "zustand";
 
 const useConversation = create((set) => ({
-//Selected conversation
 selectedConversation: null,
 
 setSelectedConversation: (selectedConversation) =>
 set({ selectedConversation }),
 
-//Messages
+
 messages: [],
 
 setMessages: (messages) =>
@@ -18,7 +17,7 @@ messages:
 		: messages,
 })),
 
-//Update message status
+//Updates message status
 updateMessageStatus: (messageId, status) =>
 set((state) => ({
 messages: state.messages.map((message) =>
@@ -28,7 +27,7 @@ messages: state.messages.map((message) =>
 ),
 })),
 
-//Update an existing message
+//Updates an existing message
 updateMessage: (updatedMessage) =>
 set((state) => ({
 messages: state.messages.map((message) =>
@@ -38,7 +37,7 @@ messages: state.messages.map((message) =>
 ),
 })),
 
-//Remove a message
+//Removes a message
 removeMessage: (messageId) =>
 set((state) => ({
 messages: state.messages.filter(
