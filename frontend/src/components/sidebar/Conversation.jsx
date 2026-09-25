@@ -85,10 +85,10 @@ conversation.lastMessagePreview || "";
 const lastMessageTime =
 conversation.lastMessageTime || "";
 
-const unreadCount =
-useConversation.getState().unreadCounts[
-conversation._id
-] || 0;
+const unreadCount = useConversation(
+(state) =>
+state.unreadCounts[conversation._id] || 0
+);
 
 const isMuted =
 conversation.isMuted || false;
