@@ -32,12 +32,27 @@ useRef(new Map());
 const previousPositions =
 useRef(new Map());
 
+const initializedUnreadCounts =
+useRef(new Set());
+
 useEffect(() => {
 conversations.forEach(
 (conversation) => {
+if (
+initializedUnreadCounts.current.has(
+conversation._id
+)
+) {
+return;
+}
+
 setUnreadCount(
 conversation._id,
 conversation.unreadCount || 0
+);
+
+initializedUnreadCounts.current.add(
+conversation._id
 );
 }
 );
@@ -138,7 +153,7 @@ const index =
 currentConversations.findIndex(
 (conversation) =>
 String(
-  conversation._id
+conversation._id
 ) ===
 activityUserId
 );
@@ -191,24 +206,24 @@ conversations.map(
 key={conversation._id}
 ref={(element) => {
 if (element) {
-  conversationRefs.current.set(
-    conversation._id,
-    element
-  );
+conversationRefs.current.set(
+conversation._id,
+element
+);
 } else {
-  conversationRefs.current.delete(
-    conversation._id
-  );
+conversationRefs.current.delete(
+conversation._id
+);
 }
 }}
 >
 <Conversation
 conversation={
-  conversation
+conversation
 }
 lastIdx={
-  index ===
-  conversations.length - 1
+index ===
+conversations.length - 1
 }
 />
 </div>

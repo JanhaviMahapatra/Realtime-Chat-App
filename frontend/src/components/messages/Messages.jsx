@@ -11,7 +11,6 @@ FiMessageCircle,
 } from "react-icons/fi";
 
 import useGetMessages from "../../hooks/useGetMessages";
-import useListenMessages from "../../hooks/useListenMessages";
 
 import Message from "./Message";
 import MessageSkeleton from "../skeletons/MessageSkeleton";
@@ -24,10 +23,7 @@ setSelectedSearchMessage,
 const { messages, loading } =
 useGetMessages();
 
-useListenMessages();
-
 const messageRefs = useRef({});
-
 const lastMessageRef = useRef(null);
 
 const filteredMessages =
@@ -78,31 +74,25 @@ behavior: "smooth",
 
 return (
 <div className="messages-container">
-
 {searchQuery.trim() && (
 <div className="message-search-results">
-
 <div className="message-search-header">
-
 <div className="message-search-title">
 <FiSearch />
 
 <span>
 {filteredMessages.length}{" "}
-{filteredMessages.length === 1
+{filteredMessages.length ===
+1
 ? "message"
 : "messages"}{" "}
 found
 </span>
 </div>
-
 </div>
 
-
 {filteredMessages.length > 0 ? (
-
 <div className="message-search-list">
-
 {filteredMessages.map(
 (message) => (
 <button
@@ -115,9 +105,7 @@ message._id
 )
 }
 >
-
 <div className="search-result-content">
-
 <div className="search-result-message">
 {message.message ||
 "Attachment"}
@@ -134,19 +122,13 @@ message.createdAt
 }
 )}
 </div>
-
 </div>
-
 </button>
 )
 )}
-
 </div>
-
 ) : (
-
 <div className="message-search-empty">
-
 <div className="message-search-empty-icon">
 <FiSearch />
 </div>
@@ -158,21 +140,15 @@ No messages found
 <span>
 Try searching for another word
 </span>
-
-</div>
-
-)}
-
 </div>
 )}
-
+</div>
+)}
 
 <div className="messages-wrapper">
-
 {!loading &&
 messages.length > 0 &&
 messages.map((message) => (
-
 <div
 key={message._id}
 ref={(element) => {
@@ -190,15 +166,11 @@ message._id
 : ""
 }`}
 >
-
 <Message
 message={message}
 />
-
 </div>
-
 ))}
-
 
 {loading &&
 [...Array(5)].map(
@@ -209,12 +181,9 @@ key={index}
 )
 )}
 
-
 {!loading &&
 messages.length === 0 && (
-
 <div className="empty-state">
-
 <div className="empty-state-icon">
 <FiMessageCircle />
 </div>
@@ -227,13 +196,9 @@ No messages yet
 Send your first message to
 start the conversation.
 </p>
-
 </div>
-
 )}
-
 </div>
-
 </div>
 );
 };

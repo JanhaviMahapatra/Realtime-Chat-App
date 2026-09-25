@@ -19,6 +19,11 @@ setSelectedConversation,
 clearUnreadCount,
 } = useConversation();
 
+const unreadCount =
+useConversation.getState().unreadCounts[
+conversation._id
+] || 0;
+
 const {
 onlineUsers,
 lastSeenUsers,
@@ -27,7 +32,8 @@ lastSeenUsers,
 if (!conversation) return null;
 
 const isSelected =
-selectedConversation?._id === conversation._id;
+selectedConversation?._id ===
+conversation._id;
 
 const isOnline =
 onlineUsers.includes(conversation._id);
@@ -84,11 +90,6 @@ conversation.lastMessagePreview || "";
 
 const lastMessageTime =
 conversation.lastMessageTime || "";
-
-const unreadCount = useConversation(
-(state) =>
-state.unreadCounts[conversation._id] || 0
-);
 
 const isMuted =
 conversation.isMuted || false;
