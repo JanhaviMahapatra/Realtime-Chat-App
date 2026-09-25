@@ -48,12 +48,28 @@ const { message, replyTo } = req.body;
 const { id: receiverId } = req.params;
 const senderId = req.user._id;
 
+console.log("BODY:", {
+			message,
+			replyTo,
+			receiverId,
+			senderId,
+		});
+
+		console.log("HAS FILE:", !!req.file);
+
 let messageType = "text";
 let fileUrl = null;
 let fileName = null;
 let fileType = null;
 
 if (req.file) {
+
+console.log("FILE INFO:", {
+				name: req.file.originalname,
+				type: req.file.mimetype,
+				size: req.file.size,
+			});
+
 fileName = req.file.originalname;
 fileType = req.file.mimetype;
 
@@ -71,11 +87,20 @@ if (
 	messageType = "file";
 }
 
+console.log(
+				"UPLOADING TO CLOUDINARY:",
+				messageType
+			);
+
 const result =
 	await uploadToCloudinary(
 		req.file,
 		messageType
 	);
+
+	console.log(
+				"CLOUDINARY UPLOAD COMPLETE"
+			);
 
 fileUrl = result.secure_url;
 }
@@ -89,6 +114,8 @@ return res.status(400).json({
 		"Message cannot be empty",
 });
 }
+
+console.log("BEFORE CONVERSATION QUERY");
 
 if (
 messageType !== "text" &&
@@ -108,6 +135,8 @@ await Conversation.findOne({
 		],
 	},
 });
+
+console.log("CONVERSATION QUERY COMPLETE");
 
 if (!conversation) {
 conversation =
