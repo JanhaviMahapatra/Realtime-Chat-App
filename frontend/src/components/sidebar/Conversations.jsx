@@ -41,7 +41,10 @@ conversation.unreadCount || 0
 );
 }
 );
-}, [conversations, setUnreadCount]);
+}, [
+conversations,
+setUnreadCount,
+]);
 
 useLayoutEffect(() => {
 const currentPositions =
@@ -53,7 +56,8 @@ if (!element) return;
 
 currentPositions.set(
 id,
-element.getBoundingClientRect().top
+element.getBoundingClientRect()
+.top
 );
 }
 );
@@ -61,9 +65,13 @@ element.getBoundingClientRect().top
 currentPositions.forEach(
 (currentTop, id) => {
 const previousTop =
-previousPositions.current.get(id);
+previousPositions.current.get(
+id
+);
 
-if (previousTop === undefined) {
+if (
+previousTop === undefined
+) {
 return;
 }
 
@@ -75,24 +83,26 @@ return;
 }
 
 const element =
-conversationRefs.current.get(id);
+conversationRefs.current.get(
+id
+);
 
 if (!element) return;
 
 element.animate(
 [
 {
-  transform: `translateY(${difference}px)`,
+transform: `translateY(${difference}px)`,
 },
 {
-  transform:
-    "translateY(0)",
+transform:
+"translateY(0)",
 },
 ],
 {
 duration: 350,
 easing:
-  "cubic-bezier(0.22, 1, 0.36, 1)",
+"cubic-bezier(0.22, 1, 0.36, 1)",
 }
 );
 }
@@ -111,13 +121,26 @@ event.detail?.userId;
 
 if (!userId) return;
 
+const activityUserId =
+String(userId);
+
 setConversations(
 (currentConversations) => {
+if (
+!Array.isArray(
+currentConversations
+)
+) {
+return currentConversations;
+}
+
 const index =
 currentConversations.findIndex(
-  (conversation) =>
-    conversation._id ===
-    userId
+(conversation) =>
+String(
+  conversation._id
+) ===
+activityUserId
 );
 
 if (index <= 0) {
@@ -127,14 +150,12 @@ return currentConversations;
 const updatedConversation =
 currentConversations[index];
 
-const remainingConversations =
-currentConversations.filter(
-  (_, i) => i !== index
-);
-
 return [
 updatedConversation,
-...remainingConversations,
+...currentConversations.filter(
+(_, i) =>
+i !== index
+),
 ];
 }
 );
@@ -167,27 +188,29 @@ Loading conversations...
 conversations.map(
 (conversation, index) => (
 <div
-  key={conversation._id}
-  ref={(element) => {
-    if (element) {
-      conversationRefs.current.set(
-        conversation._id,
-        element
-      );
-    } else {
-      conversationRefs.current.delete(
-        conversation._id
-      );
-    }
-  }}
+key={conversation._id}
+ref={(element) => {
+if (element) {
+  conversationRefs.current.set(
+    conversation._id,
+    element
+  );
+} else {
+  conversationRefs.current.delete(
+    conversation._id
+  );
+}
+}}
 >
-  <Conversation
-    conversation={conversation}
-    lastIdx={
-      index ===
-      conversations.length - 1
-    }
-  />
+<Conversation
+conversation={
+  conversation
+}
+lastIdx={
+  index ===
+  conversations.length - 1
+}
+/>
 </div>
 )
 )

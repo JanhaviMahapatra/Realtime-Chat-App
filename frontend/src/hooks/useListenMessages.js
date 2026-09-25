@@ -3,86 +3,139 @@ import { useEffect } from "react";
 import { useSocketContext } from "../context/SocketContext";
 
 import useConversation from "../zustand/useConversation";
+
 import useMarkMessagesAsRead from "./useMarkMessagesAsRead";
 
 import notificationSound from "../assets/sounds/notification.mp3";
 
 const useListenMessages = () => {
-const { socket } = useSocketContext();
+	const { socket } = useSocketContext();
 
-const {
-setMessages,
-selectedConversation,
-incrementUnreadCount,
-} = useConversation();
+	const {
+		setMessages,
+		selectedConversation,
+		incrementUnreadCount,
+	} = useConversation();
 
-const { markMessagesAsRead } =
-useMarkMessagesAsRead();
+	const { markMessagesAsRead } =
+		useMarkMessagesAsRead();
 
-useEffect(() => {
-if (!socket) return;
+	useEffect(() => {
+		if (!socket) {
+			console.log(
+				"useListenMessages: No socket"
+			);
+			return;
+		}
 
-const handleNewMessage = async (
-newMessage
-) => {
-newMessage.shouldShake = true;
+		console.log(
+			"useListenMessages: Socket available",
+			socket.id,
+			"connected:",
+			socket.connected
+		);
 
-const sound = new Audio(
-notificationSound
-);
+		const handleNewMessage = async (
+			newMessage
+		) => {
+			console.log(
+				"NEW MESSAGE SOCKET EVENT RECEIVED:",
+				newMessage
+			);
 
-sound.play().catch(() => {});
+			newMessage.shouldShake = true;
 
-const isCurrentConversation =
-selectedConversation?._id ===
-newMessage.senderId;
+			const sound = new Audio(
+				notificationSound
+			);
 
-if (isCurrentConversation) {
-setMessages((currentMessages) => [
-	...currentMessages,
-	newMessage,
-]);
+			sound.play().catch(() => {});
 
-await markMessagesAsRead(
-	newMessage.senderId
-);
-} else {
-incrementUnreadCount(
-	newMessage.senderId
-);
-}
+			console.log(
+				"Selected conversation:",
+				selectedConversation?._id
+			);
 
-window.dispatchEvent(
-new CustomEvent(
-	"conversationActivity",
-	{
-		detail: {
-			userId:
-				newMessage.senderId,
-		},
-	}
-)
-);
-};
+			console.log(
+				"New message sender:",
+				newMessage.senderId
+			);
 
-socket.on(
-"newMessage",
-handleNewMessage
-);
+			const isCurrentConversation =
+				String(
+					selectedConversation?._id
+				) ===
+				String(
+					newMessage.senderId
+				);
 
-return () => {
-socket.off(
-"newMessage",
-handleNewMessage
-);
-};
-}, [
-socket,
-setMessages,
-selectedConversation,
-incrementUnreadCount,
-markMessagesAsRead,
-]);
+			console.log(
+				"Is current conversation:",
+				isCurrentConversation
+			);
+
+			if (isCurrentConversation) {
+				console.log(
+					"Adding message to current chat"
+				);
+
+				setMessages(
+					(currentMessages) => [
+						...currentMessages,
+						newMessage,
+					]
+				);
+
+				await markMessagesAsRead(
+					newMessage.senderId
+				);
+			} else {
+				console.log(
+					"Incrementing unread count for:",
+					newMessage.senderId
+				);
+
+				incrementUnreadCount(
+					newMessage.senderId
+				);
+			}
+
+			console.log(
+				"Dispatching conversationActivity for:",
+				newMessage.senderId
+			);
+
+			window.dispatchEvent(
+				new CustomEvent(
+					"conversationActivity",
+					{
+						detail: {
+							userId:
+								newMessage.senderId,
+						},
+					}
+				)
+			);
+		};
+
+		socket.on(
+			"newMessage",
+			handleNewMessage
+		);
+
+		return () => {
+			socket.off(
+				"newMessage",
+				handleNewMessage
+			);
+		};
+	}, [
+		socket,
+		setMessages,
+		selectedConversation,
+		incrementUnreadCount,
+		markMessagesAsRead,
+	]);
 };
 
 export default useListenMessages;

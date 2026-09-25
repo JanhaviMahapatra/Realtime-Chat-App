@@ -18,122 +18,147 @@ let fileName = null;
 let fileType = null;
 
 if (req.file) {
-	fileUrl = `${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
-	fileName = req.file.originalname;
-	fileType = req.file.mimetype;
+fileUrl = `${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
+fileName = req.file.originalname;
+fileType = req.file.mimetype;
 
-	if (req.file.mimetype.startsWith("image/")) {
-		if (req.file.mimetype === "image/gif") {
-			messageType = "gif";
-		} else {
-			messageType = "image";
-		}
-	} else {
-		messageType = "file";
-	}
+if (req.file.mimetype.startsWith("image/")) {
+if (req.file.mimetype === "image/gif") {
+	messageType = "gif";
+} else {
+	messageType = "image";
+}
+} else {
+messageType = "file";
+}
 }
 
 if (
-	messageType === "text" &&
-	(!message || !message.trim())
+messageType === "text" &&
+(!message || !message.trim())
 ) {
-	return res.status(400).json({
-		error: "Message cannot be empty",
-	});
+return res.status(400).json({
+error: "Message cannot be empty",
+});
 }
 
 if (
-	messageType !== "text" &&
-	!req.file
+messageType !== "text" &&
+!req.file
 ) {
-	return res.status(400).json({
-		error: "File is required",
-	});
+return res.status(400).json({
+error: "File is required",
+});
 }
 
 let conversation =
-	await Conversation.findOne({
-		participants: {
-			$all: [
-				senderId,
-				receiverId,
-			],
-		},
-	});
+await Conversation.findOne({
+participants: {
+	$all: [
+		senderId,
+		receiverId,
+	],
+},
+});
 
 if (!conversation) {
-	conversation =
-		await Conversation.create({
-			participants: [
-				senderId,
-				receiverId,
-			],
-		});
+conversation =
+await Conversation.create({
+	participants: [
+		senderId,
+		receiverId,
+	],
+});
 }
 
 const newMessage = new Message({
-	senderId,
-	receiverId,
-	message:
-		messageType === "text"
-			? message.trim()
-			: "",
-	messageType,
-	fileUrl,
-	fileName,
-	fileType,
-	replyTo: replyTo || null,
-	status: "sent",
+senderId,
+receiverId,
+message:
+messageType === "text"
+	? message.trim()
+	: "",
+messageType,
+fileUrl,
+fileName,
+fileType,
+replyTo: replyTo || null,
+status: "sent",
 });
 
 conversation.messages.push(
-	newMessage._id
+newMessage._id
 );
 
 await Promise.all([
-	conversation.save(),
-	newMessage.save(),
+conversation.save(),
+newMessage.save(),
 ]);
 
 const receiverSocketId =
-	getReceiverSocketId(receiverId);
+getReceiverSocketId(receiverId);
 
 if (receiverSocketId) {
-	newMessage.status = "delivered";
+newMessage.status = "delivered";
 
-	await newMessage.save();
+
+await newMessage.save();
 }
 
 if (newMessage.replyTo) {
-	await newMessage.populate({
-		path: "replyTo",
-		select:
-			"message senderId receiverId createdAt messageType fileUrl fileName",
-	});
+await newMessage.populate({
+path: "replyTo",
+select:
+	"message senderId receiverId createdAt messageType fileUrl fileName",
+});
 }
 
-if (receiverSocketId) {
-	io.to(receiverSocketId).emit(
-		"newMessage",
-		newMessage.toObject()
-	);
+const senderSocketId =
+getReceiverSocketId(
+senderId.toString()
+);
 
-	io.emit("messageDelivered", {
-		messageId: newMessage._id,
-	});
+if (receiverSocketId) {
+io.to(receiverSocketId).emit(
+"newMessage",
+newMessage.toObject()
+);
+
+io.to(receiverSocketId).emit(
+"conversationActivity",
+{
+	userId:
+		senderId.toString(),
+}
+);
+
+io.emit("messageDelivered", {
+messageId:
+	newMessage._id,
+});
+}
+
+if (senderSocketId) {
+io.to(senderSocketId).emit(
+"conversationActivity",
+{
+	userId:
+		receiverId.toString(),
+}
+);
 }
 
 res.status(201).json(
-	newMessage
+newMessage
 );
 } catch (error) {
 console.log(
-	"Error in sendMessage controller:",
-	error.message
+"Error in sendMessage controller:",
+error.message
 );
 
 res.status(500).json({
-	error: "Internal server error",
+error: "Internal server error",
 });
 }
 };
@@ -141,45 +166,45 @@ res.status(500).json({
 export const getMessages = async (req, res) => {
 try {
 const {
-	id: userToChatId,
+id: userToChatId,
 } = req.params;
 
 const senderId =
-	req.user._id;
+req.user._id;
 
 const conversation =
-	await Conversation.findOne({
-		participants: {
-			$all: [
-				senderId,
-				userToChatId,
-			],
-		},
-	}).populate({
-		path: "messages",
-		populate: {
-			path: "replyTo",
-			select:
-				"message senderId receiverId createdAt messageType fileUrl fileName",
-		},
-	});
+await Conversation.findOne({
+participants: {
+	$all: [
+		senderId,
+		userToChatId,
+	],
+},
+}).populate({
+path: "messages",
+populate: {
+	path: "replyTo",
+	select:
+		"message senderId receiverId createdAt messageType fileUrl fileName",
+},
+});
 
 if (!conversation) {
-	return res.status(200).json([]);
+return res.status(200).json([]);
 }
 
 const messages =
-	conversation.messages;
+conversation.messages;
 
 res.status(200).json(messages);
 } catch (error) {
 console.log(
-	"Error in getMessages controller:",
-	error.message
+"Error in getMessages controller:",
+error.message
 );
 
 res.status(500).json({
-	error: "Internal server error",
+error: "Internal server error",
 });
 }
 };
@@ -190,76 +215,76 @@ res
 ) => {
 try {
 const {
-	id: senderId,
+id: senderId,
 } = req.params;
 
 const receiverId =
-	req.user._id;
+req.user._id;
 
 const messages =
-	await Message.find({
-		senderId,
-		receiverId,
-		status: {
-			$ne: "read",
-		},
-	}).select("_id");
+await Message.find({
+senderId,
+receiverId,
+status: {
+	$ne: "read",
+},
+}).select("_id");
 
 if (messages.length === 0) {
-	return res.status(200).json({
-		message:
-			"No unread messages",
-		updatedCount: 0,
-	});
+return res.status(200).json({
+message:
+	"No unread messages",
+updatedCount: 0,
+});
 }
 
 await Message.updateMany(
-	{
-		senderId,
-		receiverId,
-		status: {
-			$ne: "read",
-		},
-	},
-	{
-		$set: {
-			status: "read",
-		},
-	}
+{
+senderId,
+receiverId,
+status: {
+	$ne: "read",
+},
+},
+{
+$set: {
+	status: "read",
+},
+}
 );
 
 const senderSocketId =
-	getReceiverSocketId(
-		senderId
-	);
+getReceiverSocketId(
+senderId
+);
 
 if (senderSocketId) {
-	io.to(senderSocketId).emit(
-		"messageRead",
-		{
-			messageIds:
-				messages.map(
-					(message) =>
-						message._id
-				),
-		}
-	);
+io.to(senderSocketId).emit(
+"messageRead",
+{
+	messageIds:
+		messages.map(
+			(message) =>
+				message._id
+		),
+}
+);
 }
 
 res.status(200).json({
-	message:
-		"Messages marked as read",
-	updatedCount:
-		messages.length,
+message:
+"Messages marked as read",
+updatedCount:
+messages.length,
 });
 } catch (error) {
 console.log(
-	"Error in markMessagesAsRead:",
-	error.message
+"Error in markMessagesAsRead:",
+error.message
 );
 
 res.status(500).json({
-	error: "Internal server error",
+error: "Internal server error",
 });
 }
 };
@@ -269,131 +294,127 @@ req,
 res
 ) => {
 try {
-
-console.log("EDIT MESSAGE BODY:", req.body);
-		console.log("EDIT MESSAGE FILE:", req.file);
-			
 const {
-	id: messageId,
+id: messageId,
 } = req.params;
 
 const userId =
-	req.user._id;
+req.user._id;
 
 const message =
-	typeof req.body.message ===
-	"string"
-		? req.body.message.trim()
-		: "";
+typeof req.body.message ===
+"string"
+? req.body.message.trim()
+: "";
 
 const existingMessage =
-	await Message.findById(
-		messageId
-	);
+await Message.findById(
+messageId
+);
 
 if (!existingMessage) {
-	return res.status(404).json({
-		error:
-			"Message not found",
-	});
+return res.status(404).json({
+error:
+	"Message not found",
+});
 }
 
 if (
-	existingMessage.senderId.toString() !==
-	userId.toString()
+existingMessage.senderId.toString() !==
+userId.toString()
 ) {
-	return res.status(403).json({
-		error:
-			"You can only edit your own messages",
-	});
+return res.status(403).json({
+error:
+	"You can only edit your own messages",
+});
 }
 
 if (req.file) {
-	existingMessage.fileUrl =
-		`${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
+existingMessage.fileUrl =
+`${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
 
-	existingMessage.fileName =
-		req.file.originalname;
+existingMessage.fileName =
+req.file.originalname;
 
-	existingMessage.fileType =
-		req.file.mimetype;
+existingMessage.fileType =
+req.file.mimetype;
 
-	if (
-		req.file.mimetype.startsWith(
-			"image/"
-		)
-	) {
-		existingMessage.messageType =
-			req.file.mimetype ===
-			"image/gif"
-				? "gif"
-				: "image";
-	} else {
-		existingMessage.messageType =
-			"file";
-	}
+if (
+req.file.mimetype.startsWith(
+	"image/"
+)
+) {
+existingMessage.messageType =
+	req.file.mimetype ===
+	"image/gif"
+		? "gif"
+		: "image";
+} else {
+existingMessage.messageType =
+	"file";
+}
 }
 
 const hasAttachment =
-	existingMessage.messageType ===
-		"image" ||
-	existingMessage.messageType ===
-		"gif" ||
-	existingMessage.messageType ===
-		"file";
+existingMessage.messageType ===
+"image" ||
+existingMessage.messageType ===
+"gif" ||
+existingMessage.messageType ===
+"file";
 
 if (!hasAttachment && !message) {
-	return res.status(400).json({
-		error:
-			"Message cannot be empty",
-	});
+return res.status(400).json({
+error:
+	"Message cannot be empty",
+});
 }
 
 existingMessage.message =
-	message;
+message;
 
 existingMessage.edited =
-	true;
+true;
 
 await existingMessage.save();
 
 if (existingMessage.replyTo) {
-	await existingMessage.populate({
-		path: "replyTo",
-		select:
-			"message senderId receiverId createdAt messageType fileUrl fileName",
-	});
+await existingMessage.populate({
+path: "replyTo",
+select:
+	"message senderId receiverId createdAt messageType fileUrl fileName",
+});
 }
 
 const updatedMessage =
-	existingMessage.toObject();
+existingMessage.toObject();
 
 const receiverSocketId =
-	getReceiverSocketId(
-		existingMessage.receiverId.toString()
-	);
+getReceiverSocketId(
+existingMessage.receiverId.toString()
+);
 
 if (receiverSocketId) {
-	io.to(receiverSocketId).emit(
-		"messageEdited",
-		{
-			message:
-				updatedMessage,
-		}
-	);
+io.to(receiverSocketId).emit(
+"messageEdited",
+{
+	message:
+		updatedMessage,
+}
+);
 }
 
 res.status(200).json(
-	updatedMessage
+updatedMessage
 );
 } catch (error) {
 console.log(
-	"Error in editMessage controller:",
-	error.message
+"Error in editMessage controller:",
+error.message
 );
 
 res.status(500).json({
-	error: "Internal server error",
+error: "Internal server error",
 });
 }
 };
@@ -404,76 +425,76 @@ res
 ) => {
 try {
 const {
-	id: messageId,
+id: messageId,
 } = req.params;
 
 const userId =
-	req.user._id;
+req.user._id;
 
 const message =
-	await Message.findById(
-		messageId
-	);
+await Message.findById(
+messageId
+);
 
 if (!message) {
-	return res.status(404).json({
-		error:
-			"Message not found",
-	});
+return res.status(404).json({
+error:
+	"Message not found",
+});
 }
 
 if (
-	message.senderId.toString() !==
-	userId.toString()
+message.senderId.toString() !==
+userId.toString()
 ) {
-	return res.status(403).json({
-		error:
-			"You can only delete your own messages",
-	});
+return res.status(403).json({
+error:
+	"You can only delete your own messages",
+});
 }
 
 await Conversation.updateOne(
-	{
-		messages: messageId,
-	},
-	{
-		$pull: {
-			messages: messageId,
-		},
-	}
+{
+messages: messageId,
+},
+{
+$pull: {
+	messages: messageId,
+},
+}
 );
 
 await Message.findByIdAndDelete(
-	messageId
+messageId
 );
 
 const receiverSocketId =
-	getReceiverSocketId(
-		message.receiverId.toString()
-	);
+getReceiverSocketId(
+message.receiverId.toString()
+);
 
 if (receiverSocketId) {
-	io.to(receiverSocketId).emit(
-		"messageDeleted",
-		{
-			messageId,
-		}
-	);
+io.to(receiverSocketId).emit(
+"messageDeleted",
+{
+	messageId,
+}
+);
 }
 
 res.status(200).json({
-	message:
-		"Message deleted successfully",
-	messageId,
+message:
+"Message deleted successfully",
+messageId,
 });
 } catch (error) {
 console.log(
-	"Error in deleteMessage controller:",
-	error.message
+"Error in deleteMessage controller:",
+error.message
 );
 
 res.status(500).json({
-	error: "Internal server error",
+error: "Internal server error",
 });
 }
 };
