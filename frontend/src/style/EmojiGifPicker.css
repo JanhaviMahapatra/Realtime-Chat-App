@@ -1,0 +1,42 @@
+.emoji-gif-picker {
+position: absolute;
+bottom: 60px;
+right: 0;
+width: 350px;
+background: #1e1511;
+border: 1px solid #3d2b22;
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+z-index: 100;
+}
+
+.picker-tabs {
+display: flex;
+border-bottom: 1px solid #3d2b22;
+background: #211813;
+}
+
+.picker-tabs button {
+flex: 1;
+padding: 12px;
+border: none;
+background: transparent;
+color: #a18e7e;
+font-size: 14px;
+cursor: pointer;
+}
+
+.picker-tabs button.active {
+color: #f4e9dc;
+border-bottom: 2px solid #b98252;
+}
+
+.gif-placeholder {
+height: 350px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #a18e7e;
+font-size: 14px;
+}

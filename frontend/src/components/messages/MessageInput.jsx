@@ -1,5 +1,7 @@
 import "../../style/MessageInput.css";
-import { funEmojis } from "../../utils/emojis";
+import "../../style/EmojiGifPicker.css";
+
+import EmojiGifPicker from "./EmojiGifPicker";
 
 import {
 useEffect,
@@ -113,7 +115,8 @@ selectedConversation._id,
 };
 
 const handleFileSelect = (e) => {
-const file = e.target.files?.[0];
+const file =
+e.target.files?.[0];
 
 if (!file) return;
 
@@ -228,17 +231,14 @@ if (!editingMessage) return;
 
 if (
 !message.trim() &&
-!selectedFile &&
-!editingMessage.fileUrl
+!selectedFile
 ) {
 return;
 }
 
 try {
 const token =
-localStorage.getItem(
-"chat-token"
-);
+localStorage.getItem("chat-token");
 
 const formData =
 new FormData();
@@ -255,8 +255,28 @@ selectedFile
 );
 }
 
+if (!selectedFile) {
+formData.append(
+"removeAttachment",
+"true"
+);
+}
+
+const apiUrl =
+import.meta.env.VITE_API_URL;
+
+console.log(
+"EDIT REQUEST:",
+`${apiUrl}/api/messages/edit/${editingMessage._id}`
+);
+
+console.log(
+"REMOVE ATTACHMENT:",
+!selectedFile
+);
+
 const res = await fetch(
-`${import.meta.env.VITE_API_URL}/api/messages/edit/${editingMessage._id}`,
+`${apiUrl}/api/messages/edit/${editingMessage._id}`,
 {
 method: "PUT",
 headers: {
@@ -268,6 +288,11 @@ body: formData,
 
 const data =
 await res.json();
+
+console.log(
+"EDIT RESPONSE:",
+data
+);
 
 if (!res.ok || data.error) {
 throw new Error(
@@ -365,7 +390,9 @@ Editing message
 {editingMessage.messageType ===
 "text" ? (
 <p>
-{editingMessage.message}
+{
+editingMessage.message
+}
 </p>
 ) : (
 <div className="edit-attachment-preview">
@@ -412,7 +439,8 @@ title="Cancel editing"
 </div>
 )}
 
-{replyingTo && !editingMessage && (
+{replyingTo &&
+!editingMessage && (
 <div className="reply-preview">
 <div className="reply-preview-content">
 <span className="reply-preview-label">
@@ -536,24 +564,11 @@ setShowEmojiPicker(
 </button>
 
 {showEmojiPicker && (
-<div className="emoji-picker">
-{funEmojis.map(
-(emoji, index) => (
-<button
-key={index}
-type="button"
-className="emoji-option"
-onClick={() =>
-handleEmojiSelect(
-emoji
-)
+<EmojiGifPicker
+onEmojiSelect={
+handleEmojiSelect
 }
->
-{emoji}
-</button>
-)
-)}
-</div>
+/>
 )}
 </div>
 

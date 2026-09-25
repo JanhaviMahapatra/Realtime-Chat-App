@@ -1,10 +1,44 @@
+import { Readable } from "stream";
+
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+
+import cloudinary from "../config/cloudinary.js";
 
 import {
 getReceiverSocketId,
 io,
 } from "../socket/socket.js";
+
+const uploadToCloudinary = (
+file,
+messageType
+) =>
+new Promise((resolve, reject) => {
+const resourceType =
+messageType === "file"
+? "raw"
+: "image";
+
+const uploadStream =
+cloudinary.uploader.upload_stream(
+{
+folder: "chat-app/messages",
+resource_type: resourceType,
+},
+(error, result) => {
+if (error) {
+reject(error);
+} else {
+resolve(result);
+}
+}
+);
+
+Readable.from([file.buffer]).pipe(
+uploadStream
+);
+});
 
 export const sendMessage = async (req, res) => {
 try {
@@ -18,19 +52,30 @@ let fileName = null;
 let fileType = null;
 
 if (req.file) {
-fileUrl = `${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
 fileName = req.file.originalname;
 fileType = req.file.mimetype;
 
-if (req.file.mimetype.startsWith("image/")) {
-if (req.file.mimetype === "image/gif") {
-	messageType = "gif";
-} else {
-	messageType = "image";
-}
+if (
+req.file.mimetype.startsWith(
+"image/"
+)
+) {
+messageType =
+req.file.mimetype ===
+"image/gif"
+? "gif"
+: "image";
 } else {
 messageType = "file";
 }
+
+const result =
+await uploadToCloudinary(
+req.file,
+messageType
+);
+
+fileUrl = result.secure_url;
 }
 
 if (
@@ -54,20 +99,20 @@ error: "File is required",
 let conversation =
 await Conversation.findOne({
 participants: {
-	$all: [
-		senderId,
-		receiverId,
-	],
+$all: [
+senderId,
+receiverId,
+],
 },
 });
 
 if (!conversation) {
 conversation =
 await Conversation.create({
-	participants: [
-		senderId,
-		receiverId,
-	],
+participants: [
+senderId,
+receiverId,
+],
 });
 }
 
@@ -76,8 +121,8 @@ senderId,
 receiverId,
 message:
 messageType === "text"
-	? message.trim()
-	: "",
+? message.trim()
+: "",
 messageType,
 fileUrl,
 fileName,
@@ -101,7 +146,6 @@ getReceiverSocketId(receiverId);
 if (receiverSocketId) {
 newMessage.status = "delivered";
 
-
 await newMessage.save();
 }
 
@@ -109,7 +153,7 @@ if (newMessage.replyTo) {
 await newMessage.populate({
 path: "replyTo",
 select:
-	"message senderId receiverId createdAt messageType fileUrl fileName",
+"message senderId receiverId createdAt messageType fileUrl fileName",
 });
 }
 
@@ -127,14 +171,14 @@ newMessage.toObject()
 io.to(receiverSocketId).emit(
 "conversationActivity",
 {
-	userId:
-		senderId.toString(),
+userId:
+senderId.toString(),
 }
 );
 
 io.emit("messageDelivered", {
 messageId:
-	newMessage._id,
+newMessage._id,
 });
 }
 
@@ -142,8 +186,8 @@ if (senderSocketId) {
 io.to(senderSocketId).emit(
 "conversationActivity",
 {
-	userId:
-		receiverId.toString(),
+userId:
+receiverId.toString(),
 }
 );
 }
@@ -175,17 +219,17 @@ req.user._id;
 const conversation =
 await Conversation.findOne({
 participants: {
-	$all: [
-		senderId,
-		userToChatId,
-	],
+$all: [
+senderId,
+userToChatId,
+],
 },
 }).populate({
 path: "messages",
 populate: {
-	path: "replyTo",
-	select:
-		"message senderId receiverId createdAt messageType fileUrl fileName",
+path: "replyTo",
+select:
+"message senderId receiverId createdAt messageType fileUrl fileName",
 },
 });
 
@@ -226,14 +270,14 @@ await Message.find({
 senderId,
 receiverId,
 status: {
-	$ne: "read",
+$ne: "read",
 },
 }).select("_id");
 
 if (messages.length === 0) {
 return res.status(200).json({
 message:
-	"No unread messages",
+"No unread messages",
 updatedCount: 0,
 });
 }
@@ -243,12 +287,12 @@ await Message.updateMany(
 senderId,
 receiverId,
 status: {
-	$ne: "read",
+$ne: "read",
 },
 },
 {
 $set: {
-	status: "read",
+status: "read",
 },
 }
 );
@@ -262,11 +306,11 @@ if (senderSocketId) {
 io.to(senderSocketId).emit(
 "messageRead",
 {
-	messageIds:
-		messages.map(
-			(message) =>
-				message._id
-		),
+messageIds:
+messages.map(
+(message) =>
+message._id
+),
 }
 );
 }
@@ -307,6 +351,10 @@ typeof req.body.message ===
 ? req.body.message.trim()
 : "";
 
+const removeAttachment =
+req.body.removeAttachment ===
+"true";
+
 const existingMessage =
 await Message.findById(
 messageId
@@ -315,7 +363,7 @@ messageId
 if (!existingMessage) {
 return res.status(404).json({
 error:
-	"Message not found",
+"Message not found",
 });
 }
 
@@ -325,13 +373,35 @@ userId.toString()
 ) {
 return res.status(403).json({
 error:
-	"You can only edit your own messages",
+"You can only edit your own messages",
 });
 }
 
 if (req.file) {
+let messageType;
+
+if (
+req.file.mimetype.startsWith(
+"image/"
+)
+) {
+messageType =
+req.file.mimetype ===
+"image/gif"
+? "gif"
+: "image";
+} else {
+messageType = "file";
+}
+
+const result =
+await uploadToCloudinary(
+req.file,
+messageType
+);
+
 existingMessage.fileUrl =
-`${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
+result.secure_url;
 
 existingMessage.fileName =
 req.file.originalname;
@@ -339,34 +409,24 @@ req.file.originalname;
 existingMessage.fileType =
 req.file.mimetype;
 
+existingMessage.messageType =
+messageType;
+} else if (removeAttachment) {
+existingMessage.fileUrl = null;
+existingMessage.fileName = null;
+existingMessage.fileType = null;
+existingMessage.messageType =
+"text";
+}
+
 if (
-req.file.mimetype.startsWith(
-	"image/"
-)
+existingMessage.messageType ===
+"text" &&
+!message
 ) {
-existingMessage.messageType =
-	req.file.mimetype ===
-	"image/gif"
-		? "gif"
-		: "image";
-} else {
-existingMessage.messageType =
-	"file";
-}
-}
-
-const hasAttachment =
-existingMessage.messageType ===
-"image" ||
-existingMessage.messageType ===
-"gif" ||
-existingMessage.messageType ===
-"file";
-
-if (!hasAttachment && !message) {
 return res.status(400).json({
 error:
-	"Message cannot be empty",
+"Message cannot be empty",
 });
 }
 
@@ -382,7 +442,7 @@ if (existingMessage.replyTo) {
 await existingMessage.populate({
 path: "replyTo",
 select:
-	"message senderId receiverId createdAt messageType fileUrl fileName",
+"message senderId receiverId createdAt messageType fileUrl fileName",
 });
 }
 
@@ -398,8 +458,8 @@ if (receiverSocketId) {
 io.to(receiverSocketId).emit(
 "messageEdited",
 {
-	message:
-		updatedMessage,
+message:
+updatedMessage,
 }
 );
 }
@@ -439,7 +499,7 @@ messageId
 if (!message) {
 return res.status(404).json({
 error:
-	"Message not found",
+"Message not found",
 });
 }
 
@@ -449,7 +509,7 @@ userId.toString()
 ) {
 return res.status(403).json({
 error:
-	"You can only delete your own messages",
+"You can only delete your own messages",
 });
 }
 
@@ -459,7 +519,7 @@ messages: messageId,
 },
 {
 $pull: {
-	messages: messageId,
+messages: messageId,
 },
 }
 );
@@ -477,7 +537,7 @@ if (receiverSocketId) {
 io.to(receiverSocketId).emit(
 "messageDeleted",
 {
-	messageId,
+messageId,
 }
 );
 }
