@@ -1,8 +1,11 @@
 import bcrypt from "bcryptjs";
+import { Readable } from "stream";
 
 import User from "../models/user.model.js";
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+
+import cloudinary from "../config/cloudinary.js";
 
 export const getUsersForSidebar = async (req, res) => {
 try {
@@ -129,7 +132,10 @@ error: "Internal server error",
 }
 };
 
-export const updateProfilePicture = async (req, res) => {
+export const updateProfilePicture = async (
+req,
+res
+) => {
 try {
 if (!req.file) {
 return res.status(400).json({
@@ -137,18 +143,36 @@ error: "Profile picture is required",
 });
 }
 
-const backendUrl =
-process.env.BACKEND_URL ||
-`${req.protocol}://${req.get("host")}`;
+const uploadToCloudinary = () =>
+new Promise((resolve, reject) => {
+const uploadStream =
+	cloudinary.uploader.upload_stream(
+		{
+			folder: "chat-app/profile-pictures",
+			resource_type: "image",
+		},
+		(error, result) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve(result);
+			}
+		}
+	);
 
-const profilePic =
-`${backendUrl}/uploads/${req.file.filename}`;
+Readable.from(
+	req.file.buffer
+).pipe(uploadStream);
+});
+
+const result =
+await uploadToCloudinary();
 
 const updatedUser =
 await User.findByIdAndUpdate(
 req.user._id,
 {
-	profilePic,
+	profilePic: result.secure_url,
 },
 {
 	new: true,
