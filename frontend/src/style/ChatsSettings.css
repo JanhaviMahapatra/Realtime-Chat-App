@@ -1,0 +1,262 @@
+.chats-settings {
+width: 100%;
+height: 100%;
+min-width: 0;
+min-height: 0;
+overflow-y: auto;
+overflow-x: hidden;
+background: #17110e;
+color: #f4e9dc;
+}
+
+.chats-settings::-webkit-scrollbar {
+width: 6px;
+}
+
+.chats-settings::-webkit-scrollbar-track {
+background: transparent;
+}
+
+.chats-settings::-webkit-scrollbar-thumb {
+background: #493329;
+border-radius: 10px;
+}
+
+.chats-settings-header {
+height: 64px;
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 0 24px;
+border-bottom: 1px solid rgba(196, 147, 104, 0.1);
+}
+
+.chats-settings-header h1 {
+margin: 0;
+font-size: 21px;
+font-weight: 600;
+color: #f4e9dc;
+}
+
+.chats-settings-content {
+max-width: 760px;
+padding: 20px 30px 30px;
+}
+
+.chats-settings-section {
+margin-bottom: 28px;
+border-bottom: 1px solid rgba(196, 147, 104, 0.1);
+}
+
+.chat-setting-item {
+width: 100%;
+min-height: 68px;
+display: flex;
+align-items: center;
+gap: 16px;
+padding: 12px 4px;
+border: none;
+border-bottom: 1px solid rgba(196, 147, 104, 0.1);
+background: transparent;
+color: inherit;
+text-align: left;
+cursor: pointer;
+transition: background 0.2s ease;
+}
+
+.chat-setting-item:last-child {
+border-bottom: none;
+}
+
+.chat-setting-item:hover {
+background: rgba(112, 75, 53, 0.08);
+}
+
+.chat-setting-content {
+display: flex;
+flex-direction: column;
+gap: 4px;
+flex: 1;
+min-width: 0;
+}
+
+.chat-setting-title {
+font-size: 15px;
+font-weight: 500;
+color: #f4e9dc;
+}
+
+.chat-setting-value {
+font-size: 13px;
+color: #806e61;
+}
+
+.chat-setting-chevron {
+width: 18px;
+height: 18px;
+flex-shrink: 0;
+color: #806e61;
+}
+
+.chat-setting-toggle {
+min-height: 72px;
+display: flex;
+align-items: center;
+gap: 18px;
+padding: 12px 4px;
+border-bottom: 1px solid rgba(196, 147, 104, 0.1);
+}
+
+.chat-setting-toggle:last-child {
+border-bottom: none;
+}
+
+.chat-setting-description {
+font-size: 12px;
+line-height: 1.4;
+color: #806e61;
+}
+
+.chat-setting-switch {
+position: relative;
+width: 46px;
+height: 26px;
+flex-shrink: 0;
+cursor: pointer;
+}
+
+.chat-setting-switch input {
+position: absolute;
+opacity: 0;
+width: 0;
+height: 0;
+}
+
+.chat-setting-switch span {
+position: absolute;
+inset: 0;
+border-radius: 999px;
+background: #493329;
+border: 1px solid #604536;
+transition: 0.2s ease;
+}
+
+.chat-setting-switch span::before {
+content: "";
+position: absolute;
+width: 18px;
+height: 18px;
+top: 3px;
+left: 3px;
+border-radius: 50%;
+background: #a18e7e;
+transition: 0.2s ease;
+}
+
+.chat-setting-switch input:checked + span {
+background: #704b35;
+border-color: #80583d;
+}
+
+.chat-setting-switch input:checked + span::before {
+transform: translateX(20px);
+background: #f4e9dc;
+}
+
+.wallpaper-card {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 14px 4px;
+border-bottom: none;
+}
+
+.wallpaper-preview {
+width: 52px;
+height: 52px;
+flex-shrink: 0;
+border-radius: 10px;
+background:
+radial-gradient(
+circle at 30% 30%,
+rgba(185, 130, 82, 0.25),
+transparent 45%
+),
+#241a15;
+border: 1px solid rgba(196, 147, 104, 0.12);
+overflow: hidden;
+}
+
+.wallpaper-preview-overlay {
+width: 100%;
+height: 100%;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #b98252;
+font-size: 21px;
+}
+
+.wallpaper-info {
+display: flex;
+flex-direction: column;
+gap: 4px;
+flex: 1;
+}
+
+.wallpaper-info span {
+font-size: 15px;
+font-weight: 500;
+color: #f4e9dc;
+}
+
+.wallpaper-info small {
+font-size: 12px;
+color: #806e61;
+line-height: 1.4;
+}
+
+.wallpaper-check {
+width: 18px;
+height: 18px;
+color: #b98252;
+}
+
+@media (max-width: 700px) {
+.chats-settings-header {
+height: 58px;
+padding: 0 16px;
+}
+
+.chats-settings-header h1 {
+font-size: 19px;
+}
+
+.chats-settings-content {
+padding: 18px 18px 26px;
+}
+
+.chat-setting-title {
+font-size: 14px;
+}
+
+.chat-setting-value,
+.chat-setting-description {
+font-size: 12px;
+}
+}
+
+@media (max-width: 420px) {
+.chats-settings-content {
+padding: 16px 14px 24px;
+}
+
+.chat-setting-toggle {
+gap: 12px;
+}
+
+.wallpaper-preview {
+width: 46px;
+height: 46px;
+}
+}

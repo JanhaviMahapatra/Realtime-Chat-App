@@ -4,10 +4,12 @@ import {
 useEffect,
 useLayoutEffect,
 useRef,
+useState,
 } from "react";
 
 import {
 FiMessageCircle,
+FiPlus,
 } from "react-icons/fi";
 
 import useGetConversations from "../../hooks/useGetConversations";
@@ -21,10 +23,12 @@ conversations = [],
 setConversations,
 } = useGetConversations();
 
-const setUnreadCount =
-useConversation(
+const setUnreadCount = useConversation(
 (state) => state.setUnreadCount
 );
+
+const [activeFilter, setActiveFilter] =
+useState("all");
 
 const conversationRefs =
 useRef(new Map());
@@ -62,8 +66,7 @@ setUnreadCount,
 ]);
 
 useLayoutEffect(() => {
-const currentPositions =
-new Map();
+const currentPositions = new Map();
 
 conversationRefs.current.forEach(
 (element, id) => {
@@ -71,8 +74,7 @@ if (!element) return;
 
 currentPositions.set(
 id,
-element.getBoundingClientRect()
-.top
+element.getBoundingClientRect().top
 );
 }
 );
@@ -80,13 +82,9 @@ element.getBoundingClientRect()
 currentPositions.forEach(
 (currentTop, id) => {
 const previousTop =
-previousPositions.current.get(
-id
-);
+previousPositions.current.get(id);
 
-if (
-previousTop === undefined
-) {
+if (previousTop === undefined) {
 return;
 }
 
@@ -98,9 +96,7 @@ return;
 }
 
 const element =
-conversationRefs.current.get(
-id
-);
+conversationRefs.current.get(id);
 
 if (!element) return;
 
@@ -110,8 +106,7 @@ element.animate(
 transform: `translateY(${difference}px)`,
 },
 {
-transform:
-"translateY(0)",
+transform: "translateY(0)",
 },
 ],
 {
@@ -168,8 +163,7 @@ currentConversations[index];
 return [
 updatedConversation,
 ...currentConversations.filter(
-(_, i) =>
-i !== index
+(_, i) => i !== index
 ),
 ];
 }
@@ -189,7 +183,78 @@ handleConversationActivity
 };
 }, [setConversations]);
 
+const unreadCount = conversations.reduce(
+(total, conversation) =>
+total +
+(conversation.unreadCount || 0),
+0
+);
+
+const filteredConversations =
+activeFilter === "unread"
+? conversations.filter(
+(conversation) =>
+(conversation.unreadCount || 0) >
+0
+)
+: conversations;
+
+const filters = [
+{
+id: "all",
+label: "All",
+},
+{
+id: "unread",
+label: "Unread",
+count: unreadCount,
+},
+{
+id: "favorites",
+label: "Favorites",
+},
+{
+id: "groups",
+label: "Groups",
+},
+];
+
 return (
+<div className="conversations-wrapper">
+<div className="conversation-filters">
+{filters.map((filter) => (
+<button
+key={filter.id}
+type="button"
+className={`conversation-filter ${
+activeFilter === filter.id
+? "active"
+: ""
+}`}
+onClick={() =>
+setActiveFilter(filter.id)
+}
+>
+<span>{filter.label}</span>
+
+{filter.count > 0 && (
+<span className="filter-count">
+{filter.count}
+</span>
+)}
+</button>
+))}
+
+<button
+type="button"
+className="conversation-filter-add"
+aria-label="Add filter"
+title="Add filter"
+>
+<FiPlus />
+</button>
+</div>
+
 <div className="conversations-list">
 {loading ? (
 <div className="conversation-loader">
@@ -199,8 +264,8 @@ return (
 Loading conversations...
 </span>
 </div>
-) : conversations.length > 0 ? (
-conversations.map(
+) : filteredConversations.length > 0 ? (
+filteredConversations.map(
 (conversation, index) => (
 <div
 key={conversation._id}
@@ -223,7 +288,8 @@ conversation
 }
 lastIdx={
 index ===
-conversations.length - 1
+filteredConversations.length -
+1
 }
 />
 </div>
@@ -236,15 +302,19 @@ conversations.length - 1
 </div>
 
 <h3>
-No conversations yet
+{activeFilter === "unread"
+? "No unread conversations"
+: "No conversations yet"}
 </h3>
 
 <p>
-Start a new conversation and
-your chats will appear here.
+{activeFilter === "unread"
+? "You're all caught up."
+: "Start a new conversation and your chats will appear here."}
 </p>
 </div>
 )}
+</div>
 </div>
 );
 };

@@ -1,0 +1,171 @@
+.keyboard-shortcuts {
+width: 100%;
+height: 100%;
+min-width: 0;
+min-height: 0;
+overflow-y: auto;
+overflow-x: hidden;
+background: #17110e;
+color: #f4e9dc;
+}
+
+.keyboard-shortcuts::-webkit-scrollbar {
+width: 6px;
+}
+
+.keyboard-shortcuts::-webkit-scrollbar-track {
+background: transparent;
+}
+
+.keyboard-shortcuts::-webkit-scrollbar-thumb {
+background: #493329;
+border-radius: 10px;
+}
+
+.keyboard-shortcuts-header {
+height: 64px;
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 0 24px;
+border-bottom: 1px solid rgba(196, 147, 104, 0.1);
+}
+
+.keyboard-shortcuts-header h1 {
+margin: 0;
+font-size: 21px;
+font-weight: 600;
+color: #f4e9dc;
+}
+
+.keyboard-shortcuts-content {
+max-width: 760px;
+padding: 24px 30px 30px;
+}
+
+.keyboard-shortcuts-intro {
+display: flex;
+align-items: center;
+gap: 16px;
+margin-bottom: 26px;
+padding: 16px;
+border: 1px solid rgba(196, 147, 104, 0.1);
+border-radius: 12px;
+background: rgba(255, 255, 255, 0.02);
+}
+
+.keyboard-shortcuts-icon {
+width: 42px;
+height: 42px;
+flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+border-radius: 10px;
+background: rgba(112, 75, 53, 0.16);
+color: #b98252;
+font-size: 21px;
+}
+
+.keyboard-shortcuts-intro h2 {
+margin: 0 0 4px;
+font-size: 15px;
+font-weight: 600;
+color: #f4e9dc;
+}
+
+.keyboard-shortcuts-intro p {
+margin: 0;
+color: #806e61;
+font-size: 13px;
+line-height: 1.4;
+}
+
+.shortcut-list {
+display: flex;
+flex-direction: column;
+}
+
+.shortcut-item {
+min-height: 58px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 16px;
+padding: 10px 4px;
+border-bottom: 1px solid rgba(196, 147, 104, 0.1);
+}
+
+.shortcut-title {
+color: #e9dbce;
+font-size: 14px;
+}
+
+.shortcut-keys {
+display: flex;
+align-items: center;
+gap: 5px;
+flex-shrink: 0;
+}
+
+.shortcut-keys kbd {
+min-width: 28px;
+padding: 5px 8px;
+border: 1px solid #493329;
+border-bottom-color: #604536;
+border-radius: 6px;
+background: #241a15;
+color: #c49368;
+font-family: inherit;
+font-size: 11px;
+font-weight: 600;
+text-align: center;
+box-shadow: 0 2px 0 #2a1e18;
+}
+
+@media (max-width: 700px) {
+.keyboard-shortcuts-header {
+height: 58px;
+padding: 0 16px;
+}
+
+.keyboard-shortcuts-header h1 {
+font-size: 19px;
+}
+
+.keyboard-shortcuts-content {
+padding: 18px 18px 26px;
+}
+
+.shortcut-title {
+font-size: 13px;
+}
+
+.shortcut-keys kbd {
+padding: 4px 7px;
+font-size: 10px;
+}
+}
+
+@media (max-width: 420px) {
+.keyboard-shortcuts-content {
+padding: 16px 14px 24px;
+}
+
+.keyboard-shortcuts-intro {
+padding: 13px;
+}
+
+.shortcut-item {
+gap: 10px;
+}
+
+.shortcut-keys {
+gap: 3px;
+}
+
+.shortcut-keys kbd {
+min-width: 24px;
+padding: 4px 5px;
+}
+}
