@@ -24,6 +24,7 @@ import useListenMessages from "../../hooks/useListenMessages";
 
 import MessageInput from "./MessageInput";
 import Messages from "./Messages";
+import ContactInfo from "./ContactInfo";
 
 const MessageContainer = () => {
 const {
@@ -43,6 +44,9 @@ const [
 selectedSearchMessage,
 setSelectedSearchMessage,
 ] = useState(null);
+
+const [showContactInfo, setShowContactInfo] =
+useState(false);
 
 const {
 onlineUsers,
@@ -106,6 +110,7 @@ return `Last seen today at ${time}`;
 }
 
 const yesterday = new Date();
+
 yesterday.setDate(
 today.getDate() - 1
 );
@@ -131,10 +136,19 @@ setSearchQuery("");
 setSelectedSearchMessage(null);
 };
 
+const handleContactInfoToggle = () => {
+setShowContactInfo((prev) => !prev);
+};
+
+const handleContactInfoClose = () => {
+setShowContactInfo(false);
+};
+
 const handleBack = () => {
 setSearchOpen(false);
 setSearchQuery("");
 setSelectedSearchMessage(null);
+setShowContactInfo(false);
 setSelectedConversation(null);
 };
 
@@ -144,126 +158,145 @@ return (
 <NoChatSelected />
 ) : (
 <>
+<div
+className={
+showContactInfo
+? "chat-main-with-contact"
+: "chat-main"
+}
+>
 <header className="chat-header">
 {searchOpen ? (
 <div className="chat-search">
 <button
-type="button"
-className="chat-search-close"
-onClick={
-handleSearchToggle
-}
-title="Close search"
+  type="button"
+  className="chat-search-close"
+  onClick={
+    handleSearchToggle
+  }
+  title="Close search"
 >
-<FiX />
+  <FiX />
 </button>
 
 <div className="chat-search-input-wrapper">
-<FiSearch />
+  <FiSearch />
 
-<input
-type="text"
-placeholder="Search messages..."
-value={searchQuery}
-onChange={(e) =>
-setSearchQuery(
-e.target.value
-)
-}
-autoFocus
-/>
+  <input
+    type="text"
+    placeholder="Search messages..."
+    value={
+      searchQuery
+    }
+    onChange={(e) =>
+      setSearchQuery(
+        e.target.value
+      )
+    }
+    autoFocus
+  />
 </div>
 </div>
 ) : (
 <>
 <button
-type="button"
-className="mobile-back-btn"
-onClick={handleBack}
-title="Back to conversations"
+  type="button"
+  className="mobile-back-btn"
+  onClick={handleBack}
+  title="Back to conversations"
 >
-<FiArrowLeft />
+  <FiArrowLeft />
 </button>
 
-<div className="chat-user">
-<div className="chat-avatar">
-<img
-src={
-selectedConversation.profilePic
-}
-alt={
-selectedConversation.fullName
-}
-/>
-
-{isOnline && (
-<span className="online-dot"></span>
-)}
-</div>
-
-<div className="chat-user-info">
-<div className="chat-user-name-row">
-<h3>
-{
-  selectedConversation.fullName
-}
-</h3>
-</div>
-
-<p
-className={
-isTyping
-  ? "typing"
-  : isOnline
-  ? "online"
-  : "offline"
-}
+<button
+  type="button"
+  className="chat-user"
+  onClick={
+    handleContactInfoToggle
+  }
+  title="Contact info"
 >
-{isTyping
-? "Typing..."
-: isOnline
-? "Online"
-: formatLastSeen(
-    lastSeen
-  )}
-</p>
-</div>
-</div>
+  <div className="chat-avatar">
+    <img
+      src={
+        selectedConversation.profilePic
+      }
+      alt={
+        selectedConversation.fullName
+      }
+    />
+
+    {isOnline && (
+      <span className="online-dot"></span>
+    )}
+  </div>
+
+  <div className="chat-user-info">
+    <div className="chat-user-name-row">
+      <h3>
+        {
+          selectedConversation.fullName
+        }
+      </h3>
+    </div>
+
+    <p
+      className={
+        isTyping
+          ? "typing"
+          : isOnline
+          ? "online"
+          : "offline"
+      }
+    >
+      {isTyping
+        ? "Typing..."
+        : isOnline
+        ? "Online"
+        : formatLastSeen(
+            lastSeen
+          )}
+    </p>
+  </div>
+</button>
 
 <div className="chat-actions">
-<button
-type="button"
-onClick={
-handleSearchToggle
-}
-title="Search messages"
->
-<FiSearch />
-</button>
+  <button
+    type="button"
+    onClick={
+      handleSearchToggle
+    }
+    title="Search messages"
+  >
+    <FiSearch />
+  </button>
 
-<button
-type="button"
-title="Voice call"
-className="header-action-desktop"
->
-<FiPhone />
-</button>
+  <button
+    type="button"
+    title="Voice call"
+    className="header-action-desktop"
+  >
+    <FiPhone />
+  </button>
 
-<button
-type="button"
-title="Video call"
-className="header-action-desktop"
->
-<FiVideo />
-</button>
+  <button
+    type="button"
+    title="Video call"
+    className="header-action-desktop"
+  >
+    <FiVideo />
+  </button>
 
-<button
-type="button"
-title="More options"
-className="header-more-btn"
->
-<FiMoreVertical />
-</button>
+  <button
+    type="button"
+    title="Contact info"
+    className="header-more-btn"
+    onClick={
+      handleContactInfoToggle
+    }
+  >
+    <FiMoreVertical />
+  </button>
 </div>
 </>
 )}
@@ -297,6 +330,18 @@ setSelectedSearchMessage
 />
 
 <MessageInput />
+</div>
+
+{showContactInfo && (
+<ContactInfo
+selectedConversation={
+selectedConversation
+}
+onClose={
+handleContactInfoClose
+}
+/>
+)}
 </>
 )}
 </div>

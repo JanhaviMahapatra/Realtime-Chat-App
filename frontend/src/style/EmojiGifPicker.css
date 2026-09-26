@@ -3,18 +3,20 @@ position: absolute;
 bottom: 60px;
 right: 0;
 width: 350px;
-background: #1e1511;
+background: rgba(30, 21, 17, 0.96);
 border: 1px solid #3d2b22;
 border-radius: 12px;
 overflow: hidden;
 box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
 z-index: 100;
 }
 
 .picker-tabs {
 display: flex;
 border-bottom: 1px solid #3d2b22;
-background: #211813;
+background: rgba(33, 24, 19, 0.95);
 }
 
 .picker-tabs button {
@@ -25,6 +27,14 @@ background: transparent;
 color: #a18e7e;
 font-size: 14px;
 cursor: pointer;
+transition:
+color 0.2s ease,
+background 0.2s ease;
+}
+
+.picker-tabs button:hover {
+background: rgba(112, 75, 53, 0.12);
+color: #d9b28b;
 }
 
 .picker-tabs button.active {
@@ -32,11 +42,134 @@ color: #f4e9dc;
 border-bottom: 2px solid #b98252;
 }
 
-.gif-placeholder {
+/* GIF section */
+
+.gif-picker-content {
 height: 350px;
+display: flex;
+flex-direction: column;
+background: #1e1511;
+}
+
+.gif-search {
+padding: 10px;
+border-bottom: 1px solid #3d2b22;
+}
+
+.gif-search input {
+width: 100%;
+box-sizing: border-box;
+padding: 9px 12px;
+background: #241a15;
+border: 1px solid #3d2b22;
+border-radius: 8px;
+outline: none;
+color: #f4e9dc;
+font-size: 13px;
+transition:
+border-color 0.2s ease,
+box-shadow 0.2s ease;
+}
+
+.gif-search input::placeholder {
+color: #756256;
+}
+
+.gif-search input:focus {
+border-color: #704b35;
+box-shadow: 0 0 0 2px rgba(112, 75, 53, 0.15);
+}
+
+.gif-results {
+flex: 1;
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 6px;
+padding: 8px;
+overflow-y: auto;
+}
+
+.gif-results::-webkit-scrollbar {
+width: 5px;
+}
+
+.gif-results::-webkit-scrollbar-track {
+background: transparent;
+}
+
+.gif-results::-webkit-scrollbar-thumb {
+background: #493329;
+border-radius: 10px;
+}
+
+.gif-item {
+width: 100%;
+height: 115px;
+padding: 0;
+border: 1px solid transparent;
+border-radius: 8px;
+background: #241a15;
+overflow: hidden;
+cursor: pointer;
+transition:
+border-color 0.2s ease,
+transform 0.2s ease,
+opacity 0.2s ease;
+}
+
+.gif-item:hover {
+border-color: #704b35;
+transform: scale(1.02);
+}
+
+.gif-item img {
+width: 100%;
+height: 100%;
+display: block;
+object-fit: cover;
+}
+
+.gif-loading,
+.gif-error,
+.gif-empty {
+grid-column: 1 / -1;
 display: flex;
 align-items: center;
 justify-content: center;
+min-height: 180px;
+padding: 20px;
+text-align: center;
 color: #a18e7e;
-font-size: 14px;
+font-size: 13px;
+}
+
+.gif-error {
+color: #c98b7e;
+}
+
+.giphy-attribution {
+padding: 6px 10px;
+border-top: 1px solid #3d2b22;
+color: #756256;
+font-size: 10px;
+text-align: right;
+background: rgba(33, 24, 19, 0.8);
+}
+
+@media (max-width: 600px) {
+.emoji-gif-picker {
+left: 8px;
+right: 8px;
+bottom: 62px;
+width: auto;
+max-width: none;
+}
+
+.gif-picker-content {
+height: 320px;
+}
+
+.gif-item {
+height: 100px;
+}
 }

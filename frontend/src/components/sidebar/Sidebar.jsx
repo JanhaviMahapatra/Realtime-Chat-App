@@ -90,9 +90,6 @@ alt={authUser.fullName}
 <div className="sidebar-section-title">
 <h3>Chats</h3>
 
-<span>
-Recent
-</span>
 </div>
 
 <button

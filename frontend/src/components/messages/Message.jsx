@@ -125,17 +125,30 @@ toast.error(error.message);
 };
 
 const renderMessageContent = () => {
-if (
-message.messageType === "image" ||
-message.messageType === "gif"
-) {
+if (message.messageType === "gif") {
+return (
+<div className="message-media message-gif">
+<img
+src={message.fileUrl}
+alt={message.fileName || "GIF"}
+className="message-image"
+/>
+
+{message.message && (
+<p className="media-caption">
+{message.message}
+</p>
+)}
+</div>
+);
+}
+
+if (message.messageType === "image") {
 return (
 <div className="message-media">
 <img
 src={message.fileUrl}
-alt={
-message.fileName || "Image"
-}
+alt={message.fileName || "Image"}
 className="message-image"
 />
 
@@ -192,9 +205,7 @@ fromMe ? "outgoing" : "incoming"
 <div className="message-avatar">
 <img
 src={profilePic}
-alt={
-selectedConversation?.fullName
-}
+alt={selectedConversation?.fullName}
 />
 </div>
 )}

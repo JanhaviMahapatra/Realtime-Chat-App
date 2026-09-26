@@ -177,6 +177,49 @@ setMessage(
 setShowEmojiPicker(false);
 };
 
+const handleGifSelect = async (gif) => {
+if (!gif?.url) {
+return;
+}
+
+if (
+!selectedConversation?._id ||
+loading ||
+editingMessage
+) {
+return;
+}
+
+try {
+setShowEmojiPicker(false);
+
+await sendMessage(
+"",
+null,
+gif.url,
+"gif"
+);
+
+if (typingTimeoutRef.current) {
+clearTimeout(
+typingTimeoutRef.current
+);
+}
+
+socket?.emit("stopTyping", {
+receiverId:
+selectedConversation?._id,
+});
+
+setReplyingTo(null);
+} catch (error) {
+console.error(
+"Error sending GIF:",
+error.message
+);
+}
+};
+
 const handleSubmit = async (e) => {
 e.preventDefault();
 
@@ -238,7 +281,9 @@ return;
 
 try {
 const token =
-localStorage.getItem("chat-token");
+localStorage.getItem(
+"chat-token"
+);
 
 const formData =
 new FormData();
@@ -303,7 +348,8 @@ data.error ||
 
 const {
 updateMessage,
-} = useConversation.getState();
+} =
+useConversation.getState();
 
 updateMessage(data);
 
@@ -313,7 +359,8 @@ setSelectedFile(null);
 setShowEmojiPicker(false);
 
 if (fileInputRef.current) {
-fileInputRef.current.value = "";
+fileInputRef.current.value =
+"";
 }
 
 if (typingTimeoutRef.current) {
@@ -552,8 +599,10 @@ autoFocus={
 <button
 type="button"
 className="composer-icon"
-title="Emoji"
-disabled={!!editingMessage}
+title="Emoji & GIFs"
+disabled={
+!!editingMessage
+}
 onClick={() =>
 setShowEmojiPicker(
 (prev) => !prev
@@ -567,6 +616,9 @@ setShowEmojiPicker(
 <EmojiGifPicker
 onEmojiSelect={
 handleEmojiSelect
+}
+onGifSelect={
+handleGifSelect
 }
 />
 )}
