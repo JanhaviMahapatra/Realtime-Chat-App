@@ -14,6 +14,10 @@ import Conversations from "./Conversations";
 import LogoutButton from "./LogoutButton";
 import SearchInput from "./SearchInput";
 import ProfileView from "./ProfileView";
+import NewChat from "./NewChat";
+import NewContact from "./NewContact";
+import NewGroup from "./NewGroup";
+import NewCommunity from "./NewCommunity";
 
 import Settings from "../settings/Settings";
 import AccountSettings from "../settings/AccountSettings";
@@ -38,12 +42,63 @@ const goToSettings = () => {
 setActiveScreen("settings");
 };
 
+const goToNewChat = () => {
+setActiveScreen("new-chat");
+};
+
+const goToNewContact = () => {
+setActiveScreen("new-contact");
+};
+
+const goToNewGroup = () => {
+setActiveScreen("new-group");
+};
+
+const goToNewCommunity = () => {
+setActiveScreen("new-community");
+};
+
 if (activeScreen === "profile") {
 return (
 <aside className="sidebar">
-<ProfileView
+<ProfileView onBack={goToMain} />
+</aside>
+);
+}
+
+if (activeScreen === "new-chat") {
+return (
+<aside className="sidebar">
+<NewChat
 onBack={goToMain}
+onNewContact={goToNewContact}
+onNewGroup={goToNewGroup}
+onNewCommunity={goToNewCommunity}
 />
+</aside>
+);
+}
+
+if (activeScreen === "new-contact") {
+return (
+<aside className="sidebar">
+<NewContact onBack={goToNewChat} />
+</aside>
+);
+}
+
+if (activeScreen === "new-group") {
+return (
+<aside className="sidebar">
+<NewGroup onBack={goToNewChat} />
+</aside>
+);
+}
+
+if (activeScreen === "new-community") {
+return (
+<aside className="sidebar">
+<NewCommunity onBack={goToNewChat} />
 </aside>
 );
 }
@@ -52,9 +107,7 @@ if (activeScreen === "settings") {
 return (
 <aside className="sidebar">
 <Settings
-onBack={() => 
-setActiveScreen("main")}
-
+onBack={goToMain}
 onOpenProfile={() =>
 setActiveScreen("profile")
 }
@@ -224,6 +277,7 @@ alt={authUser.fullName}
 <button
 type="button"
 className="sidebar-new-chat"
+onClick={goToNewChat}
 aria-label="New chat"
 title="New chat"
 >
